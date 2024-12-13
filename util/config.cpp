@@ -264,6 +264,9 @@ void config::refresh() {
 	configFiles->clear();
 	currentConfigIndex = 0;
 
+	if (!std::filesystem::exists(utils::getDexterionPath()))
+		std::filesystem::create_directory(utils::getDexterionPath());
+	
 	if (std::filesystem::exists(utils::getConfigPath()) && std::filesystem::is_directory(utils::getConfigPath()))
 	{
 		for (auto const& entry : std::filesystem::recursive_directory_iterator(utils::getConfigPath()))
