@@ -42,7 +42,7 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 	// Weird method until I find a proper fix, im tired rn
 	if (procId == 0) {
 		Logger::info("[MemMan] Waiting For Counter Strike 2");
-		while ((procId = MemMan.getPid(L"cs2.exe")) == 0) {
+		while ((procId = MemMan.getPid(L"cs2.exe")) == 0)
 			std::this_thread::sleep_for(std::chrono::milliseconds(1500));
 	}
 	Logger::success(std::format("[MemMan] Counter Strike 2 Found (%d)!", procId));
