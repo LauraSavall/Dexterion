@@ -53,10 +53,11 @@ public:
         do {
             if (!_wcsicmp(processEntry.szExeFile, name)) {
                 process = processEntry.th32ProcessID;
-                CloseHandle(processID);
                 proc = OpenProcess(PROCESS_ALL_ACCESS, false, process);
             }
         } while (Process32NextW(processID, &processEntry));
+
+        CloseHandle(processID);
 
         return proc;
     };
@@ -71,10 +72,11 @@ public:
         do {
             if (!_wcsicmp(processEntry.szExeFile, name)) {
                 process = processEntry.th32ProcessID;
-                CloseHandle(processID);
                 proc = OpenProcess(PROCESS_ALL_ACCESS, false, process);
             }
         } while (Process32NextW(processID, &processEntry));
+
+        CloseHandle(processID);
 
         return process;
     }
