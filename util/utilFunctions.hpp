@@ -111,6 +111,13 @@ inline namespace utils {
 		return std::wstring(buffer).substr(0, pos) + L"\\Dexterion\\Config";
 	}
 
+	inline std::wstring getDexterionPath() {
+		WCHAR buffer[MAX_PATH] = { 0 };
+		GetModuleFileNameW(NULL, buffer, MAX_PATH);
+		std::wstring::size_type pos = std::wstring(buffer).find_first_of(L"\\/");
+		return std::wstring(buffer).substr(0, pos) + L"\\Dexterion";
+	}
+
 	inline ImColor float3ToImColor(float colours[3], float a = 1.f) {
 		return ImColor(colours[0], colours[1], colours[2], a);
 	}
