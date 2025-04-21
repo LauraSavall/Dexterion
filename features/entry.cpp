@@ -67,7 +67,7 @@ void mainLoop(bool state, MemoryManagement::moduleData client) {
 
 		// Checks
 		if (aim::lockedPlayer == C_CSPlayerPawn.playerPawn && (C_CSPlayerPawn.pawnHealth <= 0 || (aimConf.checkSpotted && !C_CSPlayerPawn.getEntitySpotted()))) aim::lockedPlayer = 0;
-		if ((C_CSPlayerPawn.pawnHealth <= 0 || C_CSPlayerPawn.pawnHealth > 100) || strcmp(CCSPlayerController.pawnName.c_str(), "DemoRecorder") == 0) continue;
+		if ((C_CSPlayerPawn.pawnHealth <= 0) || strcmp(CCSPlayerController.pawnName.c_str(), "DemoRecorder") == 0) continue;
 		if (localPlayer.getTeam() == CCSPlayerController.getPawnTeam() && !miscConf.deathmatchMode) continue;
 
 		// Game scene node
@@ -75,6 +75,7 @@ void mainLoop(bool state, MemoryManagement::moduleData client) {
 
 		// ESP
 		if (espConf.state) {
+			//Logger::info(std::format("ESPs ({})", i));
 			if (C_CSPlayerPawn.getPlayerPawn() == localPlayer.getPlayerPawn()) continue;
 			esp::sharedData::weaponID = C_CSPlayerPawn.getWeaponID();
 			esp::sharedData::weaponName = C_CSPlayerPawn.getWeaponName();
@@ -108,7 +109,6 @@ void mainLoop(bool state, MemoryManagement::moduleData client) {
 
 		// Aim
 		if (aimConf.state) {
-
 			if (C_CSPlayerPawn.getPlayerPawn() == localPlayer.getPlayerPawn()) continue;
 
 			// Player lock
@@ -118,7 +118,7 @@ void mainLoop(bool state, MemoryManagement::moduleData client) {
 				C_CSPlayerPawn.playerPawn = aim::lockedPlayer;
 			}
 
-			if (C_CSPlayerPawn.getPawnHealth() <= 0 || C_CSPlayerPawn.pawnHealth > 100) {
+			if (C_CSPlayerPawn.getPawnHealth() <= 0) {
 				aim::lockedPlayer = 0;
 				continue;
 			}
@@ -170,7 +170,7 @@ C_CSPlayerPawn doPreferred(C_CSPlayerPawn C_CSPlayerPawn_, CGameSceneNode CGameS
 	if (preferredTarget == 0) return C_CSPlayerPawn_;
 	target.playerPawn = preferredTarget;
 
-	if (target.getPawnHealth() <= 0 || target.pawnHealth > 100)
+	if (target.getPawnHealth() <= 0)
 		return C_CSPlayerPawn_;
 
 	switch (mode) {

@@ -11,43 +11,36 @@
 using namespace std;
 
 void aim::aimBot(LocalPlayer localPlayer, Vector3 baseViewAngles, uintptr_t enemyPlayer, uintptr_t boneArray, MemoryManagement::moduleData client) {
+
 	Vector3 aimPos;
 	Vector3 newAngle;
 	Vector3 angle;
 
-	if (aimConf.playerLock)
+	if (aimConf.playerLock){
 		if (lockedPlayer != 0 && lockedPlayer != enemyPlayer) return;
+	}
 	if (enemyPlayer == localPlayer.getPlayerPawn()) {
 		lockedPlayer = 0;
 		return;
 	}
 
 	aimPos = MemMan.ReadMem<Vector3>(boneArray + aimConf.boneMap[aimConf.bones[aimConf.boneSelect]] * 32);
-	angle = CalculateAngle(localPlayer.eyepos, aimPos, localPlayer.viewAngles);
-	newAngle = calculateBestAngle(angle, { 0, 0, aimConf.fov });
-
-	if (aimConf.rcs) {
-		static Vector3 oldAngles = { 0, 0, 0 };
-		Vector3 rcs = { 0, 0, 0 };
-
-		if (localPlayer.getShotsFired() > 1 && localPlayer.shotsFired < 9999 /* Spectator check */) {
-			Vector3 aimPunch = MemMan.ReadMem<Vector3>(localPlayer.getPlayerPawn() + clientDLL::C_CSPlayerPawn_["m_aimPunchAngle"]);
-			rcs.x = (aimPunch.x - oldAngles.x) * 2.f / (0.022f * aimConf.sens);
-			rcs.y = (aimPunch.y - oldAngles.y) * 2.f / (0.022f * aimConf.sens);
-
-			oldAngles.x = aimPunch.y;
-			oldAngles.y = aimPunch.x;
-		}
-		newAngle = calculateBestAngle(angle, { rcs.x, rcs.y, aimConf.fov });
-	};
-
-	newAngle.x = (newAngle.x / (0.022f * aimConf.sens)) / aimConf.smoothing;
-	newAngle.y = (newAngle.y / (0.022f * aimConf.sens)) / aimConf.smoothing;
-
-	if (newAngle.IsZero()) {
-		lockedPlayer = 0;
-		return;
+	
+	
+	Vector3 aimPunch = {0, 0, 0};
+	if (aimConf.rcs && localPlayer.getShotsFired() > 1) {
+		aimPunch = MemMan.ReadMem<Vector3>(localPlayer.getPlayerPawn() + clientDLL::C_CSPlayerPawn_["m_aimPunchAngle"]);
+		aimPunch.x *= 2.0f;
+		aimPunch.y *= 2.0f;
 	}
+	
+	angle = CalculateAngle(localPlayer.eyepos, aimPos, localPlayer.viewAngles + aimPunch);
+	
+	newAngle = calculateBestAngle(angle, { 0, 0, aimConf.fov });
+	
+	newAngle.x = (newAngle.x / (0.022f * aimConf.sens));
+	newAngle.y = (newAngle.y / (0.022f * aimConf.sens));
+
 	
 	if (aimConf.isHotAim) {
 		if (GetAsyncKeyState(aimConf.hotKeyMap[aimConf.hotKey[aimConf.hotSelectAim]])) {
@@ -66,8 +59,8 @@ void aim::moveMouseToLocation(Vector3 pos) {
 
 	auto new_x = -pos.y;
 	auto new_y = pos.x;
-
 	mouse_event(MOUSEEVENTF_MOVE, new_x, new_y, 0, 0);
+
 }
 
 Vector3 aim::recoilControl(LocalPlayer localPlayer, bool move) {
