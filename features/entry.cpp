@@ -164,7 +164,10 @@ void mainLoop(bool state, MemoryManagement::moduleData client) {
 	// Dropped Item
 	if (miscConf.itemESP) misc::droppedItem(C_CSPlayerPawn, CGameSceneNode, viewMatrix);
 }
-
+//	 {"Closest to Player",0},
+// {"Closest to Crosshair",1},
+// {"Furthest from crosshair",2
+// },{"No preference",3} };
 C_CSPlayerPawn doPreferred(C_CSPlayerPawn C_CSPlayerPawn_, CGameSceneNode CGameSceneNode, LocalPlayer localPlayer, uintptr_t preferredTarget, view_matrix_t viewMatrix, int mode, MemoryManagement::moduleData client) {
 	C_CSPlayerPawn target(client.base);
 	if (preferredTarget == 0) return C_CSPlayerPawn_;
@@ -230,6 +233,59 @@ C_CSPlayerPawn doPreferred(C_CSPlayerPawn C_CSPlayerPawn_, CGameSceneNode CGameS
 	}
 	case 3: {
 		return target;
+	}
+	case 4: {
+		// Within FOV + Closest mode
+		// First check if the new target is within FOV
+		Vector3 newOrigin = C_CSPlayerPawn_.getOrigin();
+		Vector3 newHeadPos = MemMan.ReadMem<Vector3>(CGameSceneNode.getBoneArray() + aimConf.boneMap[aimConf.bones[aimConf.boneSelect]] * 32);
+		Vector3 newHeadPosToScreen = newHeadPos.worldToScreen(viewMatrix);
+
+		bool newInFOV = utils::getDistance(
+			{ newHeadPosToScreen.x, newHeadPosToScreen.y }, 
+			{ (float)GetSystemMetrics(SM_CXSCREEN) / 2, (float)GetSystemMetrics(SM_CYSCREEN) / 2 }
+		) <= (aimConf.fov * 10);
+
+		// Check if preferred target is within FOV
+		CGameSceneNode.value = target.getCGameSceneNode();
+		Vector3 oldHeadPos = MemMan.ReadMem<Vector3>(CGameSceneNode.getBoneArray() + aimConf.boneMap[aimConf.bones[aimConf.boneSelect]] * 32);
+		Vector3 oldHeadPosToScreen = oldHeadPos.worldToScreen(viewMatrix);
+
+		bool oldInFOV = utils::getDistance(
+			{ oldHeadPosToScreen.x, oldHeadPosToScreen.y }, 
+			{ (float)GetSystemMetrics(SM_CXSCREEN) / 2, (float)GetSystemMetrics(SM_CYSCREEN) / 2 }
+		) <= (aimConf.fov * 10);
+
+		// If only one target is in FOV, pick that one
+		if (newInFOV && !oldInFOV)
+			return C_CSPlayerPawn_;
+		if (oldInFOV && !newInFOV)
+			return target;
+
+		// If both targets are in FOV, pick the closest one to the player
+		if (newInFOV && oldInFOV) {
+			if (utils::getDistance(localPlayer.getOrigin(), target.getOrigin()) >
+				utils::getDistance(localPlayer.getOrigin(), C_CSPlayerPawn_.getOrigin()))
+				return C_CSPlayerPawn_;
+			else
+				return target;
+		}
+
+		// If neither target is in FOV, pick the closest one to FOV
+		float newDistToCenter = utils::getDistance(
+			{ newHeadPosToScreen.x, newHeadPosToScreen.y }, 
+			{ (float)GetSystemMetrics(SM_CXSCREEN) / 2, (float)GetSystemMetrics(SM_CYSCREEN) / 2 }
+		);
+		
+		float oldDistToCenter = utils::getDistance(
+			{ oldHeadPosToScreen.x, oldHeadPosToScreen.y }, 
+			{ (float)GetSystemMetrics(SM_CXSCREEN) / 2, (float)GetSystemMetrics(SM_CYSCREEN) / 2 }
+		);
+		
+		if (newDistToCenter < oldDistToCenter)
+			return C_CSPlayerPawn_;
+		else
+			return target;
 	}
 	default: return C_CSPlayerPawn_;
 	}
