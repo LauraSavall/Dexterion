@@ -158,11 +158,17 @@ if (currentTime - lastDamageUpdateTime >= 10) {
 
 			if (aimConf.checkSpotted) {
 				if (SharedFunctions::spottedCheck(C_CSPlayerPawn, localPlayer)) {
-					aim::aimBot(localPlayer, baseViewAngles, C_CSPlayerPawn.playerPawn, CGameSceneNode.boneArray, client);
+					// Only execute aimBot if there are no spectators watching
+					if (spectators.empty()) {
+						aim::aimBot(localPlayer, baseViewAngles, C_CSPlayerPawn.playerPawn, CGameSceneNode.boneArray, client);
+					}
 				}
 			}
 			else {
-				aim::aimBot(localPlayer, baseViewAngles, C_CSPlayerPawn.playerPawn, CGameSceneNode.boneArray, client);
+				// Only execute aimBot if there are no spectators watching
+				if (spectators.empty()) {
+					aim::aimBot(localPlayer, baseViewAngles, C_CSPlayerPawn.playerPawn, CGameSceneNode.boneArray, client);
+				}
 			}
 		}
 	}
