@@ -95,8 +95,8 @@ struct aimConfig {
 
 	bool playerLock;
 
-	std::vector<std::string> hotKey = { "SHIFT","ALT","CTRL","Left mouse","Right mouse" };
-	std::map <std::string, int> hotKeyMap = { {"SHIFT",VK_SHIFT}, {"ALT",VK_MENU},{"CTRL",VK_CONTROL},{"Left mouse",VK_LBUTTON},{"Right mouse",VK_RBUTTON} };
+	std::vector<std::string> hotKey = { "SHIFT","ALT","CTRL","Left mouse","Right mouse","X" };
+	std::map <std::string, int> hotKeyMap = { {"SHIFT",VK_SHIFT}, {"ALT",VK_MENU},{"CTRL",VK_CONTROL},{"Left mouse",VK_LBUTTON},{"Right mouse",VK_RBUTTON}, {"X",0x58} };
 
 	inline nlohmann::json to_json();
 	inline bool from_json(nlohmann::json json);
