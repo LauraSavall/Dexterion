@@ -109,10 +109,12 @@ struct miscConfig {
 	bool deathmatchMode;
 	bool spectator;
 	bool bombTimer;
+	bool damageList;
 	bool consoleVisible = true;
 	bool obsBypass = true;
 	float bombTimerColours[4] = { 0.f, 1.f, 0.5f, 1.f };
-	float spectatorColours[4] = { 1.f, 0.f, 0.f, 1.f };
+	float spectatorColours[4] = { 0.f, 1.f, 0.f, 1.f };
+	float damageListColours[4] = { 0.f, 1.f, 0.f, 1.f };
 
 	inline nlohmann::json to_json();
 	inline bool from_json(nlohmann::json json);

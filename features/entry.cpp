@@ -1,4 +1,5 @@
 #include "entry.hpp"
+#include <format>
 
 void mainLoop(bool state, MemoryManagement::moduleData client) {
 	// Classes
@@ -45,6 +46,11 @@ void mainLoop(bool state, MemoryManagement::moduleData client) {
 
 	std::vector<std::string> spectators{};
 
+std::unordered_map<std::string, std::pair<int, uintptr_t>> playerDamageMap;
+
+static int lastDamageUpdateTime = 0;
+int currentTime = misc::getCurrentTimestamp();
+
 	// Main loop
 	for (int i = 0; i < 64; i++) {
 		// Player controller
@@ -60,6 +66,26 @@ void mainLoop(bool state, MemoryManagement::moduleData client) {
 		C_CSPlayerPawn.getListEntry();
 		C_CSPlayerPawn.getPlayerPawn();
 		C_CSPlayerPawn.getPawnHealth();
+
+
+if (currentTime - lastDamageUpdateTime >= 10) {
+    uintptr_t actionServices = MemMan.ReadMem<uintptr_t>(
+        CCSPlayerController.value + 
+        clientDLL::clientDLLOffsets["CCSPlayerController"]["fields"]["m_pActionTrackingServices"]);
+    
+    if (!actionServices) continue;
+    
+    uint32_t totalDamage = MemMan.ReadMem<uint32_t>(
+        actionServices + 
+        clientDLL::clientDLLOffsets["CCSPlayerController_ActionTrackingServices"]["fields"]["m_unTotalRoundDamageDealt"]);
+    
+    if (totalDamage > 0) {
+        playerDamageMap[CCSPlayerController.pawnName] = {totalDamage, CCSPlayerController.value};
+    }
+
+}
+
+
 
 		// Spectator List
 		if (miscConf.spectator && CCSPlayerController.isSpectating(true))
@@ -160,6 +186,36 @@ void mainLoop(bool state, MemoryManagement::moduleData client) {
 			ImGui::End();
 		}
 	}
+	
+	misc::displayDamageList();
+	if (currentTime - lastDamageUpdateTime >= 10) {
+		 lastDamageUpdateTime = currentTime;
+
+		static bool wasInGame = false;
+		bool isInGame = SharedFunctions::inGame(client.base);
+		
+		// If we just started a new game/round, clear the damage list
+		if (isInGame && !wasInGame) {
+			misc::clearDamageList();
+		}
+		wasInGame = isInGame;
+		
+// Update our damage list
+misc::damageList.clear();
+for (const auto& [name, damageInfo] : playerDamageMap) {
+    misc::damageList.push_back(misc::DamageData(name, damageInfo.first, damageInfo.second));
+}
+
+// Sort by damage
+std::sort(misc::damageList.begin(), misc::damageList.end());
+	
+
+
+
+
+ 
+}
+
 
 	// Dropped Item
 	if (miscConf.itemESP) misc::droppedItem(C_CSPlayerPawn, CGameSceneNode, viewMatrix);

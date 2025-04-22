@@ -184,11 +184,13 @@ inline nlohmann::json miscConfig::to_json() {
 	json["itemESP"] = itemESP;
 	json["bombTimer"] = bombTimer;
 	json["spectator"] = spectator;
+	json["damageList"] = damageList;
 	json["deathmatchMode"] = deathmatchMode;
 	json["consoleVisible"] = consoleVisible;
 	json["obsBypass"] = obsBypass;
 	json["spectatorColours"] = spectatorColours;
 	json["bombTimerColours"] = bombTimerColours;
+	json["damageListColours"] = damageListColours;
 	return json;
 }
 
@@ -206,6 +208,10 @@ inline bool miscConfig::from_json(nlohmann::json json) {
 		bombTimerColours[0] = json["bombTimerColours"][0];
 		bombTimerColours[1] = json["bombTimerColours"][1];
 		bombTimerColours[2] = json["bombTimerColours"][2];
+		damageList = json["damageList"]; 
+		damageListColours[0] = json["damageListColours"][0];
+		damageListColours[1] = json["damageListColours"][1];
+		damageListColours[2] = json["damageListColours"][2];
 	}
 	catch (nlohmann::json::type_error& ignored) {
 		Logger::warn("[Config.cpp] miscConfig section has missing properties, using defaults for missing options.");

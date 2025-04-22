@@ -323,8 +323,31 @@ Vector3 CGameSceneNode::getOrigin() {
 
 
 bool SharedFunctions::spottedCheck(C_CSPlayerPawn C_CSPlayerPawn, LocalPlayer localPlayer) {
-	if (C_CSPlayerPawn.getEntitySpotted() & (1 << (localPlayer.playerPawn)) || localPlayer.getEntitySpotted() & (1 << (C_CSPlayerPawn.playerPawn))) return 1;
-	return 0;
+	// Strictly rely on the game's spotting system, which generally doesn't spot through walls
+	// This is the most reliable way to prevent wall hacking
+	bool spotted = (C_CSPlayerPawn.getEntitySpotted() & (1 << (localPlayer.playerPawn)));
+	
+	// Also check if we're directly looking at the entity (crosshair ID check)
+	// This is a game feature that only works when you're directly looking at a visible player
+	int crosshairId = MemMan.ReadMem<int>(localPlayer.getPlayerPawn() + clientDLL::C_CSPlayerPawnBase_["m_iIDEntIndex"]);
+	
+	// Extract the entity from the crosshair target
+	if (crosshairId > 0) {
+		uintptr_t crosshairEntityEntry = MemMan.ReadMem<uintptr_t>(
+			MemMan.ReadMem<uintptr_t>(localPlayer.base + offsets::clientDLL["dwEntityList"]) + 
+			0x8 * ((crosshairId) >> 9) + 0x10);
+			
+		uintptr_t crosshairEntity = MemMan.ReadMem<uintptr_t>(crosshairEntityEntry + 0x78 * (crosshairId & 0x1FF));
+		
+		// If the crosshair is on the entity we're checking, it must be visible
+		if (crosshairEntity == C_CSPlayerPawn.playerPawn) {
+			return true;
+		}
+	}
+	
+	// Only return true if the game system has spotted the entity
+	// This is the most restrictive approach to prevent wall hacking
+	return spotted;
 }
 
 bool SharedFunctions::inGame(DWORD_PTR base) {

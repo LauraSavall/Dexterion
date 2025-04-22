@@ -1,4 +1,9 @@
 #include "misc.hpp"
+#include "../util/config.hpp"
+
+// Initialize static variables
+std::vector<misc::DamageData> misc::damageList;
+int misc::lastUpdateTime = 0;
 
 bool misc::isGameWindowActive() {
 	HWND hwnd = GetForegroundWindow();
@@ -59,3 +64,110 @@ void misc::droppedItem(C_CSPlayerPawn C_CSPlayerPawn, CGameSceneNode CGameSceneN
 		}
 	}
 }
+
+// Add damage for a player
+void misc::addDamage(std::string name, int damage, uintptr_t playerHandle) {
+	bool found = false;
+	
+	// Check if player already exists in damage list
+	for (auto& entry : damageList) {
+		if (entry.playerHandle == playerHandle) {
+			// Add damage to existing player
+			entry.damage += damage;
+			found = true;
+			break;
+		}
+	}
+	
+	// If player not found, add them to the list
+	if (!found) {
+		damageList.push_back(DamageData(name, damage, playerHandle));
+	}
+	
+	// Sort the damage list (highest damage first)
+	std::sort(damageList.begin(), damageList.end());
+}
+
+void misc::updatePlayerDamage(std::string name, int totalDamage, uintptr_t playerHandle) {
+    bool found = false;
+    
+    // Check if player already exists in damage list
+    for (auto& entry : damageList) {
+        if (entry.playerHandle == playerHandle) {
+            // Update with current total damage
+            entry.damage = totalDamage;
+            found = true;
+            break;
+        }
+    }
+    
+    // If player not found, add them to the list
+    if (!found) {
+        damageList.push_back(DamageData(name, totalDamage, playerHandle));
+    }
+    
+    // Sort the damage list (highest damage first)
+    std::sort(damageList.begin(), damageList.end());
+}
+
+// Clear the damage list (for round reset)
+void misc::clearDamageList() {
+	damageList.clear();
+}
+
+// Display the damage list UI
+void misc::displayDamageList() {
+	// Skip if disabled or game window not active
+	if (!miscConf.damageList) return;
+	if (!overlayESP::isMenuOpen()) {
+		if (!misc::isGameWindowActive()) return;
+	}
+	
+	// Always show the window (like spectator list), even if empty
+	// This allows users to see it during gameplay
+	
+	// Set window position and size
+	ImGuiWindowFlags flags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize;
+	ImGui::SetNextWindowPos({ (float)GetSystemMetrics(SM_CXSCREEN) - 200.f, 200.f }, ImGuiCond_FirstUseEver);
+	ImGui::SetNextWindowSize({ 180.f, 180.f }, ImGuiCond_FirstUseEver);
+	
+	// Create window
+	ImGui::PushStyleVar(ImGuiStyleVar_WindowTitleAlign, { 0.5f, 0.5f });
+	if (ImGui::Begin("Damage List", nullptr, flags)) {
+		// Header
+		ImGui::TextColored(ImVec4(1.0f, 1.0f, 1.0f, 1.0f), "Damage This Round");
+		ImGui::Separator();
+		
+		if (damageList.empty()) {
+			// Show a message when no damage to display
+			ImGui::TextColored(ImVec4(0.7f, 0.7f, 0.7f, 1.0f), "No damage recorded yet");
+		} else {
+			// Display each player and their damage
+			int count = 0;
+			for (const auto& player : damageList) {
+				// Limit to top 5 players
+				if (count >= 5) break;
+				
+				// Display player name
+				ImGui::Text("%s:", player.playerName.c_str());
+				ImGui::SameLine();
+				
+				ImGui::TextColored(ImVec4(1.0f, 1.0f, 1.0f, 1.0f), "%d", player.damage);
+				
+				count++;
+			}
+		}
+		
+		// Add clear button when in menu
+		if (overlayESP::isMenuOpen()) {
+			ImGui::Separator();
+			if (ImGui::Button("Clear List")) {
+				clearDamageList();
+			}
+		}
+		
+		ImGui::End();
+	}
+	ImGui::PopStyleVar();
+}
+
