@@ -173,7 +173,8 @@ void overlayESP::renderLoop(MemoryManagement::moduleData client) {
 			Logger::success("[overlay.cpp] Overlay drew succesfully! Cheat loaded.");
 		}
 
-		std::this_thread::sleep_for(std::chrono::milliseconds(1 / 100));
+		//std::this_thread::sleep_for(std::chrono::milliseconds(1 / 100));
+		std::this_thread::sleep_for(std::chrono::microseconds(1));
 	}
 }
 

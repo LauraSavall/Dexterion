@@ -1,5 +1,29 @@
 #include "entry.hpp"
 #include <format>
+#include <set>
+#include <fstream>
+
+// Keep track of names we've already logged to avoid duplicates in the same session
+std::set<std::string> loggedPlayerNames;
+
+
+// Function to log player names to a file on the desktop
+void logPlayerNameToFile(const std::string& playerName) {
+	if (loggedPlayerNames.find(playerName) != loggedPlayerNames.end()) {
+		return; // Skip empty names or already logged names
+	}
+	
+	// Add to our set of logged names
+	loggedPlayerNames.insert(playerName);
+	
+	// Open file in append mode
+	std::ofstream logFile("C:\\Users\\arthur\\Desktop\\tex_nef.txt", std::ios::app);
+	if (logFile.is_open()) {
+		// Write the player name with a timestamp
+		logFile << playerName << std::endl;
+		logFile.close();
+	}
+}
 
 void mainLoop(bool state, MemoryManagement::moduleData client) {
 	// Classes
@@ -44,14 +68,14 @@ void mainLoop(bool state, MemoryManagement::moduleData client) {
 	// Tigger
 	if (aimConf.trigger) aim::triggerBot(localPlayer, client.base);
 
+
+	std::unordered_map<std::string, std::pair<int, uintptr_t>> playerDamageMap;
+
+	static int lastDamageUpdateTime = 0;
+	int currentTime = misc::getCurrentTimestamp();
 	std::vector<std::string> spectators{};
 
-std::unordered_map<std::string, std::pair<int, uintptr_t>> playerDamageMap;
-
-static int lastDamageUpdateTime = 0;
-int currentTime = misc::getCurrentTimestamp();
-
-	// Main loop
+	//logPlayerNameToFile("-----------------------------------------------------------------------");
 	for (int i = 0; i < 64; i++) {
 		// Player controller
 		CCSPlayerController.id = i;
@@ -60,6 +84,7 @@ int currentTime = misc::getCurrentTimestamp();
 		CCSPlayerController.getController();
 		if (CCSPlayerController.value == 0) continue;
 		CCSPlayerController.getPawnName();
+	
 
 		// Player pawn
 		C_CSPlayerPawn.value = CCSPlayerController.getC_CSPlayerPawn();
@@ -67,37 +92,45 @@ int currentTime = misc::getCurrentTimestamp();
 		C_CSPlayerPawn.getPlayerPawn();
 		C_CSPlayerPawn.getPawnHealth();
 
-
-if (currentTime - lastDamageUpdateTime >= 10) {
-    uintptr_t actionServices = MemMan.ReadMem<uintptr_t>(
-        CCSPlayerController.value + 
-        clientDLL::clientDLLOffsets["CCSPlayerController"]["fields"]["m_pActionTrackingServices"]);
-    
-    if (!actionServices) continue;
-    
-    uint32_t totalDamage = MemMan.ReadMem<uint32_t>(
-        actionServices + 
-        clientDLL::clientDLLOffsets["CCSPlayerController_ActionTrackingServices"]["fields"]["m_unTotalRoundDamageDealt"]);
-    
-    if (totalDamage > 0) {
-        playerDamageMap[CCSPlayerController.pawnName] = {totalDamage, CCSPlayerController.value};
-    }
-
-}
-
-
+		if (currentTime - lastDamageUpdateTime >= 10) {
+			uintptr_t actionServices = MemMan.ReadMem<uintptr_t>(
+				CCSPlayerController.value + 
+				clientDLL::clientDLLOffsets["CCSPlayerController"]["fields"]["m_pActionTrackingServices"]);
+			
+			if (!actionServices) continue;
+			
+			uint32_t totalDamage = MemMan.ReadMem<uint32_t>(
+				actionServices + 
+				clientDLL::clientDLLOffsets["CCSPlayerController_ActionTrackingServices"]["fields"]["m_unTotalRoundDamageDealt"]);
+			
+			if (totalDamage > 0) {
+				playerDamageMap[CCSPlayerController.pawnName] = {totalDamage, CCSPlayerController.value};
+			}
+		}
 
 		// Spectator List
 		if (miscConf.spectator && CCSPlayerController.isSpectating(true))
 			spectators.push_back(CCSPlayerController.pawnName);
 
+		//if (localPlayer.getTeam() == CCSPlayerController.getPawnTeam() && !miscConf.deathmatchMode) continue;
+		if (localPlayer.getTeam() == CCSPlayerController.getPawnTeam()) continue;
+		// if (strcmp(CCSPlayerController.pawnName.c_str(), "Unknown") == 0
+		// //|| strcmp(CCSPlayerController.pawnName.c_str(), "weapon_type_grenade") == 0
+		// //|| strcmp(CCSPlayerController.pawnName.c_str(), "m_nElementCount") == 0
+		// ) {
+		// 	continue;
+		// }
+
 		// Checks
 		if (aim::lockedPlayer == C_CSPlayerPawn.playerPawn && (C_CSPlayerPawn.pawnHealth <= 0 || (aimConf.checkSpotted && !C_CSPlayerPawn.getEntitySpotted()))) aim::lockedPlayer = 0;
-		if ((C_CSPlayerPawn.pawnHealth <= 0) || strcmp(CCSPlayerController.pawnName.c_str(), "DemoRecorder") == 0) continue;
-		if (localPlayer.getTeam() == CCSPlayerController.getPawnTeam() && !miscConf.deathmatchMode) continue;
+		if ((C_CSPlayerPawn.pawnHealth <= 0 || C_CSPlayerPawn.pawnHealth > 100000) || strcmp(CCSPlayerController.pawnName.c_str(), "DemoRecorder") == 0
+		|| strcmp(CCSPlayerController.pawnName.c_str(), "Unknown") == 0) continue;
 
 		// Game scene node
 		CGameSceneNode.value = C_CSPlayerPawn.getCGameSceneNode();
+
+
+		//logPlayerNameToFile(CCSPlayerController.pawnName);
 
 		// ESP
 		if (espConf.state) {
@@ -123,30 +156,44 @@ if (currentTime - lastDamageUpdateTime >= 10) {
 		}
 
 		// C4 ESP
-		if (espConf.c4State) {
-			if (!overlayESP::isMenuOpen()) {
-				if (!misc::isGameWindowActive()) return;
-			}
-			CGameSceneNode.value = C_C4.getCGameSceneNode();
-			CGameSceneNode.getOrigin();
-
-			esp::drawC4(CGameSceneNode.origin, viewMatrix, localPlayer, C_C4);
-		}
+		//if (espConf.c4State) {
+		//	if (!overlayESP::isMenuOpen()) {
+		//		if (!misc::isGameWindowActive()) return;
+		//	}
+		//	CGameSceneNode.value = C_C4.getCGameSceneNode();
+		//	CGameSceneNode.getOrigin();
+//
+		//	esp::drawC4(CGameSceneNode.origin, viewMatrix, localPlayer, C_C4);
+		//}
 
 		// Aim
+			if (aimConf.isHotAim) {
+		if (GetAsyncKeyState(aimConf.hotKeyMap[aimConf.hotKey[aimConf.hotSelectAim]])) {
 		if (aimConf.state) {
+			// if (!spectators.empty()) {
+			// 	continue;
+			// }
 			if (C_CSPlayerPawn.getPlayerPawn() == localPlayer.getPlayerPawn()) continue;
 
 			// Player lock
 			if (aimConf.playerLock) {
-				aim::lockedPlayer = doPreferred(C_CSPlayerPawn, CGameSceneNode, localPlayer, aim::lockedPlayer, viewMatrix, aimConf.aimModeMap[aimConf.aimModes[aimConf.aimMode]], client).playerPawn;
-				if (aim::lockedPlayer != C_CSPlayerPawn.playerPawn) continue;
-				C_CSPlayerPawn.playerPawn = aim::lockedPlayer;
-			}
-
-			if (C_CSPlayerPawn.getPawnHealth() <= 0) {
-				aim::lockedPlayer = 0;
-				continue;
+				// Check if current enemy is the preferred target
+				uintptr_t preferredPlayerPawn = doPreferred(C_CSPlayerPawn, CGameSceneNode, localPlayer, aim::lockedPlayer, viewMatrix, aimConf.aimModeMap[aimConf.aimModes[aimConf.aimMode]], client).playerPawn;
+				
+				// If this enemy isn't the preferred target, skip to the next enemy in loop
+				if (preferredPlayerPawn != C_CSPlayerPawn.playerPawn) {
+					continue;
+				}
+				
+				// Update the locked player for future iterations
+				aim::lockedPlayer = preferredPlayerPawn;
+				
+				// // Debug text to show which enemy is being targeted
+				// float screenCenterX = (float)GetSystemMetrics(SM_CXSCREEN) / 2;
+				// ImGui::GetBackgroundDrawList()->AddText(
+				// 	{ screenCenterX - 100, 30 }, ImColor(1.0f, 1.0f, 0.0f),
+				// 	("Target: " + CCSPlayerController.pawnName).c_str()
+				// );
 			}
 
 			CGameSceneNode.value = C_CSPlayerPawn.getCGameSceneNode();
@@ -155,22 +202,17 @@ if (currentTime - lastDamageUpdateTime >= 10) {
 			localPlayer.getCameraPos();
 			localPlayer.getEyePos();
 			localPlayer.getViewAngles();
-
 			if (aimConf.checkSpotted) {
 				if (SharedFunctions::spottedCheck(C_CSPlayerPawn, localPlayer)) {
-					// Only execute aimBot if there are no spectators watching
-					if (spectators.empty()) {
 						aim::aimBot(localPlayer, baseViewAngles, C_CSPlayerPawn.playerPawn, CGameSceneNode.boneArray, client);
-					}
 				}
 			}
 			else {
-				// Only execute aimBot if there are no spectators watching
-				if (spectators.empty()) {
 					aim::aimBot(localPlayer, baseViewAngles, C_CSPlayerPawn.playerPawn, CGameSceneNode.boneArray, client);
-				}
 			}
 		}
+				}
+	}
 	}
 
 	if (miscConf.spectator) {
@@ -218,8 +260,6 @@ std::sort(misc::damageList.begin(), misc::damageList.end());
 
 
 
-
- 
 }
 
 
@@ -235,7 +275,7 @@ C_CSPlayerPawn doPreferred(C_CSPlayerPawn C_CSPlayerPawn_, CGameSceneNode CGameS
 	if (preferredTarget == 0) return C_CSPlayerPawn_;
 	target.playerPawn = preferredTarget;
 
-	if (target.getPawnHealth() <= 0)
+	if (target.getPawnHealth() <= 0 || target.getPawnHealth() > 100000)
 		return C_CSPlayerPawn_;
 
 	switch (mode) {
@@ -297,57 +337,63 @@ C_CSPlayerPawn doPreferred(C_CSPlayerPawn C_CSPlayerPawn_, CGameSceneNode CGameS
 		return target;
 	}
 	case 4: {
-		// Within FOV + Closest mode
-		// First check if the new target is within FOV
+		// First check if the targets are within FOV
 		Vector3 newOrigin = C_CSPlayerPawn_.getOrigin();
 		Vector3 newHeadPos = MemMan.ReadMem<Vector3>(CGameSceneNode.getBoneArray() + aimConf.boneMap[aimConf.bones[aimConf.boneSelect]] * 32);
 		Vector3 newHeadPosToScreen = newHeadPos.worldToScreen(viewMatrix);
 
-		bool newInFOV = utils::getDistance(
+		// Get screen center coordinates
+		float screenCenterX = (float)GetSystemMetrics(SM_CXSCREEN) / 2;
+		float screenCenterY = (float)GetSystemMetrics(SM_CYSCREEN) / 2;
+		
+		float newDistToCenter = utils::getDistance(
 			{ newHeadPosToScreen.x, newHeadPosToScreen.y }, 
-			{ (float)GetSystemMetrics(SM_CXSCREEN) / 2, (float)GetSystemMetrics(SM_CYSCREEN) / 2 }
-		) <= (aimConf.fov * 10);
+			{ screenCenterX, screenCenterY }
+		);
+		
+		// Check if target is within FOV and on screen
+		bool newValidScreen = (newHeadPosToScreen.z >= 0.01f &&
+							   newHeadPosToScreen.x >= 0 && newHeadPosToScreen.x <= GetSystemMetrics(SM_CXSCREEN) &&
+							   newHeadPosToScreen.y >= 0 && newHeadPosToScreen.y <= GetSystemMetrics(SM_CYSCREEN));
+		
+		bool newInFOV = newValidScreen && (newDistToCenter <= (aimConf.fov * 10));
 
 		// Check if preferred target is within FOV
 		CGameSceneNode.value = target.getCGameSceneNode();
 		Vector3 oldHeadPos = MemMan.ReadMem<Vector3>(CGameSceneNode.getBoneArray() + aimConf.boneMap[aimConf.bones[aimConf.boneSelect]] * 32);
 		Vector3 oldHeadPosToScreen = oldHeadPos.worldToScreen(viewMatrix);
-
-		bool oldInFOV = utils::getDistance(
-			{ oldHeadPosToScreen.x, oldHeadPosToScreen.y }, 
-			{ (float)GetSystemMetrics(SM_CXSCREEN) / 2, (float)GetSystemMetrics(SM_CYSCREEN) / 2 }
-		) <= (aimConf.fov * 10);
-
-		// If only one target is in FOV, pick that one
-		if (newInFOV && !oldInFOV)
-			return C_CSPlayerPawn_;
-		if (oldInFOV && !newInFOV)
-			return target;
-
-		// If both targets are in FOV, pick the closest one to the player
-		if (newInFOV && oldInFOV) {
-			if (utils::getDistance(localPlayer.getOrigin(), target.getOrigin()) >
-				utils::getDistance(localPlayer.getOrigin(), C_CSPlayerPawn_.getOrigin()))
-				return C_CSPlayerPawn_;
-			else
-				return target;
-		}
-
-		// If neither target is in FOV, pick the closest one to FOV
-		float newDistToCenter = utils::getDistance(
-			{ newHeadPosToScreen.x, newHeadPosToScreen.y }, 
-			{ (float)GetSystemMetrics(SM_CXSCREEN) / 2, (float)GetSystemMetrics(SM_CYSCREEN) / 2 }
-		);
 		
 		float oldDistToCenter = utils::getDistance(
 			{ oldHeadPosToScreen.x, oldHeadPosToScreen.y }, 
-			{ (float)GetSystemMetrics(SM_CXSCREEN) / 2, (float)GetSystemMetrics(SM_CYSCREEN) / 2 }
+			{ screenCenterX, screenCenterY }
 		);
 		
-		if (newDistToCenter < oldDistToCenter)
+		// Check if old target is within FOV and on screen
+		bool oldValidScreen = (oldHeadPosToScreen.z >= 0.01f &&
+							   oldHeadPosToScreen.x >= 0 && oldHeadPosToScreen.x <= GetSystemMetrics(SM_CXSCREEN) &&
+							   oldHeadPosToScreen.y >= 0 && oldHeadPosToScreen.y <= GetSystemMetrics(SM_CYSCREEN));
+		
+		bool oldInFOV = oldValidScreen && (oldDistToCenter <= (aimConf.fov * 10));
+
+		// Calculate distances for use after FOV check
+		float distToNew = utils::getDistance(localPlayer.getOrigin(), C_CSPlayerPawn_.getOrigin());
+		float distToOld = utils::getDistance(localPlayer.getOrigin(), target.getOrigin());
+
+		// TARGETING LOGIC:
+		// 1. FOV has absolute priority - if one player is in FOV and the other isn't, pick the one in FOV
+		if (newInFOV && !oldInFOV) {
 			return C_CSPlayerPawn_;
-		else
+		}
+		if (oldInFOV && !newInFOV) {
 			return target;
+		}
+
+		// 2. If both are in FOV or both are outside FOV, pick the closest one
+		if (distToNew < distToOld) {
+			return C_CSPlayerPawn_;
+		} else {
+			return target;
+		}
 	}
 	default: return C_CSPlayerPawn_;
 	}
