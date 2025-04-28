@@ -283,6 +283,11 @@ int LocalPlayer::getFlags() {
 	return flags;
 }
 
+int LocalPlayer::getGroundEntity() {
+	groundEntity = MemMan.ReadMem<int>(playerPawn + clientDLL::C_BaseEntity_["m_hGroundEntity"]);
+	return groundEntity;
+}
+
 C_UTL_VECTOR LocalPlayer::getAimPunchCache() {
 	aimPunchCache = MemMan.ReadMem<C_UTL_VECTOR>(playerPawn + clientDLL::C_CSPlayerPawn_["m_aimPunchCache"]);
 	return aimPunchCache;

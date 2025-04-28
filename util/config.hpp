@@ -110,6 +110,7 @@ struct miscConfig {
 	bool spectator;
 	bool bombTimer;
 	bool damageList;
+	bool bhopEnabled; // Bunny hop feature
 	bool consoleVisible = true;
 	bool obsBypass = true;
 	float bombTimerColours[4] = { 0.f, 1.f, 0.5f, 1.f };

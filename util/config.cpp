@@ -185,6 +185,7 @@ inline nlohmann::json miscConfig::to_json() {
 	json["bombTimer"] = bombTimer;
 	json["spectator"] = spectator;
 	json["damageList"] = damageList;
+	json["bhopEnabled"] = bhopEnabled;
 	json["deathmatchMode"] = deathmatchMode;
 	json["consoleVisible"] = consoleVisible;
 	json["obsBypass"] = obsBypass;
@@ -212,6 +213,11 @@ inline bool miscConfig::from_json(nlohmann::json json) {
 		damageListColours[0] = json["damageListColours"][0];
 		damageListColours[1] = json["damageListColours"][1];
 		damageListColours[2] = json["damageListColours"][2];
+		
+		// Try to load bhopEnabled, but don't fail if it doesn't exist in older configs
+		if (json.contains("bhopEnabled")) {
+			bhopEnabled = json["bhopEnabled"];
+		}
 	}
 	catch (nlohmann::json::type_error& ignored) {
 		Logger::warn("[Config.cpp] miscConfig section has missing properties, using defaults for missing options.");

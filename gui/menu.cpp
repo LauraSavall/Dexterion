@@ -362,6 +362,8 @@ void imGuiMenu::miscRender() {
 		ImGui::Checkbox("Spectator List", &miscConf.spectator);
 		ImGui::Dummy(ImVec2(0.0f, textSeparatorSpace));
 		ImGui::Checkbox("Damage List", &miscConf.damageList);
+		ImGui::Dummy(ImVec2(0.0f, textSeparatorSpace));
+		ImGui::Checkbox("Bunny Hop", &miscConf.bhopEnabled);
 		ImGui::EndChild();
 
 		verticalSplitter(imGuiMenu::widthSeparatorInt, imGuiMenu::heightSeparatorInt);
@@ -392,6 +394,8 @@ void imGuiMenu::miscRender() {
 		ImGui::Checkbox("Spectator List", &miscConf.spectator);
 		ImGui::Dummy(ImVec2(0.0f, textSeparatorSpace));
 		ImGui::Checkbox("Bomb Timer", &miscConf.bombTimer);
+		ImGui::Dummy(ImVec2(0.0f, textSeparatorSpace));
+		ImGui::Checkbox("Bunny Hop", &miscConf.bhopEnabled);
 		ImGui::EndChild();
 	}
 }

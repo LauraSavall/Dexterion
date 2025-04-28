@@ -1,9 +1,168 @@
 #include "misc.hpp"
 #include "../util/config.hpp"
+#include <atomic>         // For thread-safe boolean flags
+#include <windows.h>      // For GetAsyncKeyState, mouse_event
+#include <thread>         // For std::thread
+#include <chrono>         // For timing (milliseconds, steady_clock)
+#include <random>
+
 
 // Initialize static variables
 std::vector<misc::DamageData> misc::damageList;
 int misc::lastUpdateTime = 0;
+#define FL_ONGROUND (1 << 0)
+
+namespace { // Anonymous namespace for internal linkage
+    std::atomic<bool> g_autoBhopEnabled = false;
+    std::atomic<bool> g_stopBhopThread = false;
+    std::thread g_bhopThread;
+
+	std::thread g_itemESPThread;
+	std::atomic<bool> g_stopItemESPThread = false;
+
+	int getRandomInt(int min, int max) {
+		// 1. Seed the random number engine (only needs to be done once ideally,
+		//    but doing it here for a self-contained function is okay for simplicity)
+		std::random_device rd; // Obtain a random number from hardware
+		std::mt19937 gen(rd()); // Seed the generator
+	
+		// 2. Define the range (inclusive)
+		std::uniform_int_distribution<> distrib(min, max);
+	
+		// 3. Generate and return the random number
+		return distrib(gen);
+	}
+
+    // Worker function for the bunny hop thread (keep it internal)
+//     void bhopWorker(LocalPlayer localPlayer) {
+//         while (!g_stopBhopThread) { // Loop until explicitly told to stop
+
+// 			//int flags = localPlayer.getFlags();
+// 			//bool onGround = (flags & FL_ONGROUND);
+			
+// 			//if (onGround) {
+//                     mouse_event(MOUSEEVENTF_WHEEL, 0, 0, -120, 0);
+// 					int randomValue = getRandomInt(14444, 16000);
+
+// 					//std::this_thread::sleep_for(std::chrono::microseconds(15626)); 
+// 					std::this_thread::sleep_for(std::chrono::microseconds(randomValue)); 
+// 					//std::this_thread::sleep_for(std::chrono::milliseconds(16));
+
+//                 }
+// 				//std::this_thread::sleep_for(std::chrono::microseconds(16625));
+            
+//       //  }
+
+
+// } //nd anonymous namespace
+
+void bhopWorker(LocalPlayer localPlayer) {
+
+    const uintptr_t m_flSimulationTimeOffset = clientDLL::C_BaseEntity_["m_flSimulationTime"];
+    float lastSimTime = MemMan.ReadMem<float>(localPlayer.getPlayerPawn() + m_flSimulationTimeOffset);
+
+
+
+	mouse_event(MOUSEEVENTF_WHEEL, 0, 0, -120, 0);
+	while (!g_stopBhopThread) { // Loop until explicitly told to stop
+
+		//int flags = localPlayer.getGroundEntity();
+		//Logger::info(std::format("[Bhop] Flags: {}", flags));
+		
+
+		Vector3 playerVelocity = MemMan.ReadMem<Vector3>(localPlayer.getPlayerPawn() + clientDLL::C_BaseEntity_["m_vecVelocity"]);
+        float curSimTime = MemMan.ReadMem<float>(localPlayer.getPlayerPawn() + m_flSimulationTimeOffset);
+
+        // only run when the engine has actually advanced one or more ticks
+        if (curSimTime != lastSimTime) {
+            float delta    = curSimTime - lastSimTime;     // in seconds
+            float msDelta  = delta * 1000.0f;              // in ms
+            lastSimTime    = curSimTime;                   // prepare for next loop
+
+			Logger::info(std::format("[Bhop] Frame Time (Delta SimTime): {:.4f} ms", msDelta));
+
+
+		}
+
+
+
+
+		if (playerVelocity.z  <= -145.0f || playerVelocity.z == 0.0f) {
+			//std::this_thread::sleep_for(std::chrono::milliseconds(16));
+			//std::this_thread::sleep_for(std::chrono::microseconds(15626));
+			std::this_thread::sleep_for(std::chrono::microseconds(15626));
+			//Logger::info("[Bhop] Player velocity");
+			mouse_event(MOUSEEVENTF_WHEEL, 0, 0, -120, 0);
+		}
+
+		//if (flags != -1) {
+				//mouse_event(MOUSEEVENTF_WHEEL, 0, 0, -120, 0);
+				//std::this_thread::sleep_for(std::chrono::microseconds(15626)); 
+				//std::this_thread::sleep_for(std::chrono::milliseconds(16));
+
+		//	}
+		
+    }
+} 
+
+void itemESPWorker(C_CSPlayerPawn C_CSPlayerPawn, CGameSceneNode CGameSceneNode, view_matrix_t viewMatrix) {
+	if (!overlayESP::isMenuOpen()) {
+		if (!misc::isGameWindowActive()) return;
+	}
+	while (!g_stopItemESPThread) {
+
+	for (int i = 65; i < 1324; i++) {
+		// Entity
+		C_CSPlayerPawn.value = i;
+		C_CSPlayerPawn.getListEntry();
+		if (C_CSPlayerPawn.listEntry == 0) continue;
+		C_CSPlayerPawn.getPlayerPawn();
+		if (C_CSPlayerPawn.playerPawn == 0) continue;
+		if (C_CSPlayerPawn.getOwner() != -1) continue;
+
+		// Entity name
+		uintptr_t entity = MemMan.ReadMem<uintptr_t>(C_CSPlayerPawn.playerPawn + 0x10);
+		uintptr_t designerNameAddy = MemMan.ReadMem<uintptr_t>(entity + 0x20);
+
+		char designerNameBuffer[MAX_PATH]{};
+		MemMan.ReadRawMem(designerNameAddy, designerNameBuffer, MAX_PATH);
+
+		std::string name = std::string(designerNameBuffer);
+
+		if (strstr(name.c_str(), "weapon_")) name.erase(0, 7);
+		//else if (strstr(name.c_str(), "_projectile")) name.erase(name.length() - 11, 11);
+		//else if (strstr(name.c_str(), "baseanimgraph")) name = "defuse kit";
+		else continue;
+
+		// Origin position of entity
+		CGameSceneNode.value = C_CSPlayerPawn.getCGameSceneNode();
+		CGameSceneNode.getOrigin();
+		CGameSceneNode.origin = CGameSceneNode.origin.worldToScreen(viewMatrix);
+
+		// Drawing
+		if (CGameSceneNode.origin.z >= 0.01f) {
+			ImVec2 textSize = ImGui::CalcTextSize(name.c_str());
+			auto [horizontalOffset, verticalOffset] = getTextOffsets(textSize.x, textSize.y, 2.f);
+
+			ImFont* gunText = {};
+			if (std::filesystem::exists(DexterionSystem::weaponIconsTTF)) {
+				gunText = imGuiMenu::weaponIcons;
+				name = gunIcon(name);
+			}
+			else gunText = imGuiMenu::espNameText;
+
+			ImGui::GetBackgroundDrawList()->AddText(gunText, 12, { CGameSceneNode.origin.x - horizontalOffset, CGameSceneNode.origin.y - verticalOffset }, ImColor(espConf.attributeColours[0], espConf.attributeColours[1], espConf.attributeColours[2]), name.c_str());
+		}
+	}
+	std::this_thread::sleep_for(std::chrono::milliseconds(1)); 
+}
+} 
+
+
+}
+
+// Flags for player ground status check
+
 
 bool misc::isGameWindowActive() {
 	HWND hwnd = GetForegroundWindow();
@@ -15,7 +174,103 @@ bool misc::isGameWindowActive() {
 	return false;
 }
 
+static bool isBhopToggledActive = false;
+
+
+static bool qKeyWasPressed = false;
+static std::chrono::steady_clock::time_point qPressStartTime;
+static const std::chrono::milliseconds holdDurationThreshold(17); // 200ms threshold
+
+
+void misc::startBhopThread(LocalPlayer localPlayer) {
+    if (!g_bhopThread.joinable()) { // Check if thread is not already running
+        g_stopBhopThread = false;   // Reset the stop flag
+        g_bhopThread = std::thread(bhopWorker, localPlayer); // Create and start the thread
+        // Optional: Log thread start
+        // Logger::info("[Misc] BunnyHop thread started.");
+    }
+}
+
+
+void misc::stopBhopThread() {
+    if (g_bhopThread.joinable()) {
+		g_stopBhopThread = true; // Signal the thread to stop its loop
+        try {
+            g_bhopThread.join(); // Wait for the thread to finish execution
+            // Optional: Log thread stop
+            // Logger::info("[Misc] BunnyHop thread stopped and joined.");
+        } catch (const std::system_error& e) {
+            // Handle potential errors during join (e.g., if thread wasn't joinable)
+        }
+    }
+     g_autoBhopEnabled = false; // Ensure state is off on exit
+}
+
+
+void misc::startItemESPThread(C_CSPlayerPawn C_CSPlayerPawn, CGameSceneNode CGameSceneNode, view_matrix_t viewMatrix) {
+    if (!g_itemESPThread.joinable()) { // Check if thread is not already running
+        g_stopItemESPThread = false;   // Reset the stop flag
+        g_itemESPThread = std::thread(itemESPWorker, C_CSPlayerPawn, CGameSceneNode, viewMatrix); // Create and start the thread
+        // Optional: Log thread start
+        // Logger::info("[Misc] BunnyHop thread started.");
+    }
+}
+
+void misc::stopItemESPThread() {
+    if (g_itemESPThread.joinable()) {
+		g_stopItemESPThread = true; // Signal the thread to stop its loop
+        try {
+            g_itemESPThread.join(); // Wait for the thread to finish execution
+            // Optional: Log thread stop
+            // Logger::info("[Misc] BunnyHop thread stopped and joined.");
+        } catch (const std::system_error& e) {
+            // Handle potential errors during join (e.g., if thread wasn't joinable)
+        }
+    }
+
+}
+
+
+
+
+
+static std::chrono::steady_clock::time_point lastToggleTime = std::chrono::steady_clock::now(); // Time of the last successful toggle
+static const std::chrono::milliseconds toggleCooldown(360);   // 50ms cooldown duration
+
+
+void misc::bunnyHop(LocalPlayer localPlayer) {
+    if (!isGameWindowActive()) return;
+
+    bool isQPressedNow = (GetAsyncKeyState('Q') & 0x8000) != 0;
+    if (!isQPressedNow) return;
+
+
+    auto now = std::chrono::steady_clock::now();
+    if (now - lastToggleTime < toggleCooldown) {
+        return; // Still in cooldown, do nothing
+    }
+	else{
+
+		lastToggleTime = now; 
+	}
+
+    // Cooldown passed, toggle
+    g_autoBhopEnabled = !g_autoBhopEnabled;
+    if (g_autoBhopEnabled) {
+        startBhopThread(localPlayer);
+    } else {
+        stopBhopThread();
+    }
+
+
+}
+
+
+
+
 void misc::droppedItem(C_CSPlayerPawn C_CSPlayerPawn, CGameSceneNode CGameSceneNode, view_matrix_t viewMatrix) {
+	//startItemESPThread(C_CSPlayerPawn, CGameSceneNode, viewMatrix);
+
 	if (!overlayESP::isMenuOpen()) {
 		if (!misc::isGameWindowActive()) return;
 	}
@@ -39,8 +294,8 @@ void misc::droppedItem(C_CSPlayerPawn C_CSPlayerPawn, CGameSceneNode CGameSceneN
 		std::string name = std::string(designerNameBuffer);
 
 		if (strstr(name.c_str(), "weapon_")) name.erase(0, 7);
-		else if (strstr(name.c_str(), "_projectile")) name.erase(name.length() - 11, 11);
-		else if (strstr(name.c_str(), "baseanimgraph")) name = "defuse kit";
+		//else if (strstr(name.c_str(), "_projectile")) name.erase(name.length() - 11, 11);
+		//else if (strstr(name.c_str(), "baseanimgraph")) name = "defuse kit";
 		else continue;
 
 		// Origin position of entity
@@ -49,6 +304,8 @@ void misc::droppedItem(C_CSPlayerPawn C_CSPlayerPawn, CGameSceneNode CGameSceneN
 		CGameSceneNode.origin = CGameSceneNode.origin.worldToScreen(viewMatrix);
 
 		// Drawing
+
+
 		if (CGameSceneNode.origin.z >= 0.01f) {
 			ImVec2 textSize = ImGui::CalcTextSize(name.c_str());
 			auto [horizontalOffset, verticalOffset] = getTextOffsets(textSize.x, textSize.y, 2.f);
@@ -64,6 +321,10 @@ void misc::droppedItem(C_CSPlayerPawn C_CSPlayerPawn, CGameSceneNode CGameSceneN
 		}
 	}
 }
+
+
+
+
 
 // Add damage for a player
 void misc::addDamage(std::string name, int damage, uintptr_t playerHandle) {

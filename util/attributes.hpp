@@ -244,7 +244,10 @@ public:
 	int flags;
 	int getFlags();
 
-	C_UTL_VECTOR aimPunchCache;
+	int groundEntity;
+    int getGroundEntity();
+
+    C_UTL_VECTOR aimPunchCache;
 	C_UTL_VECTOR getAimPunchCache();
 
 	Vector2 aimPunchAngle;

@@ -9,6 +9,8 @@
 #include "gui/overlay.hpp"
 #include "util/MemMan.hpp"
 #include "util/attributes.hpp"
+#include "features/misc.hpp" 
+
 
 LRESULT Wndproc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 	if (ImGui_ImplWin32_WndProcHandler(hWnd, msg, wParam, lParam)) {
@@ -86,7 +88,9 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 	overlayClass.initWindow(nShowCmd);
 
 	Logger::info("[overlay.cpp] Starting main loop...");
+	//misc::startBhopThread(); 
 	overlayClass.renderLoop(client);
+	
 
 	return 0;
 }

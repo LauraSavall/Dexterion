@@ -2,9 +2,12 @@
 #include <format>
 #include <set>
 #include <fstream>
+#include <thread>
+
 
 // Keep track of names we've already logged to avoid duplicates in the same session
 std::set<std::string> loggedPlayerNames;
+
 
 
 // Function to log player names to a file on the desktop
@@ -64,6 +67,9 @@ void mainLoop(bool state, MemoryManagement::moduleData client) {
 
 	// Bomb Timer
 	if (miscConf.bombTimer) bomb::timer(C_C4);
+
+	// Bunny Hop
+	if (miscConf.bhopEnabled) misc::bunnyHop(localPlayer);
 
 	// Tigger
 	if (aimConf.trigger) aim::triggerBot(localPlayer, client.base);
@@ -223,15 +229,16 @@ void mainLoop(bool state, MemoryManagement::moduleData client) {
 		ImGuiWindowFlags flags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize;
 		ImGui::SetNextWindowPos({ 0.f, 200.f }, ImGuiCond_FirstUseEver);
 		ImGui::SetNextWindowSize({ 100.f, 250.f }, ImGuiCond_FirstUseEver);
-		if (ImGui::Begin("Spectators", nullptr, flags)) {
-
-			for (int i = 0; i < spectators.size(); i++) {
-				std::string name = spectators[i];
-
-				ImGui::TextColored(utils::float3ToImColor(miscConf.spectatorColours, miscConf.spectatorColours[3]).Value, name.c_str());
+		if(spectators.size() > 0){
+			if (ImGui::Begin("Spectators + ", nullptr, flags)) {
+				for (int i = 0; i < spectators.size(); i++) {
+					std::string name = spectators[i];
+	
+					ImGui::TextColored(utils::float3ToImColor(miscConf.spectatorColours, miscConf.spectatorColours[3]).Value, name.c_str());
+				}
+	
+				ImGui::End();
 			}
-
-			ImGui::End();
 		}
 	}
 	

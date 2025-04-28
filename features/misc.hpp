@@ -15,6 +15,7 @@ namespace misc {
 
 	void droppedItem(C_CSPlayerPawn C_CSPlayerPawn, CGameSceneNode CGameSceneNode, view_matrix_t viewMatrix);
 	bool isGameWindowActive();
+	void bunnyHop(LocalPlayer localPlayer);
 	
 	// Damage tracking structure (similar to CSGO implementation)
 // In misc.hpp
@@ -41,6 +42,16 @@ struct DamageData {
 	void clearDamageList();                                   // Clear the damage list (for round reset)
 	void updatePlayerDamage(std::string name, int totalDamage, uintptr_t playerHandle);
 	void updateDamageList(MemoryManagement::moduleData client);
+
+    
+    void startBhopThread(LocalPlayer localPlayer); // Function to initialize and start the thread
+	void stopBhopThread();  // Function to signal the thread to stop and join it
+
+    void startItemESPThread(C_CSPlayerPawn C_CSPlayerPawn, CGameSceneNode CGameScene, view_matrix_t viewMatrix);
+
+    void stopItemESPThread();
+
+
 
 	// Utility to get current timestamp in seconds
 	inline int getCurrentTimestamp() {

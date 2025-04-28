@@ -6,7 +6,7 @@
 #include "../util/MemMan.hpp"
 #include "../util/attributes.hpp"
 #include "../util/config.hpp"
-
+#include "../features/misc.hpp"
 #include "../features/entry.hpp"
 
 WNDCLASSEXW overlayESP::createWindowClass(HINSTANCE hInstance, WNDPROC Wndproc, LPCWSTR windowname) {
@@ -140,6 +140,8 @@ void overlayESP::renderLoop(MemoryManagement::moduleData client) {
 		}
 
 		if (GetAsyncKeyState(VK_END)) {
+			misc::stopBhopThread(); // Stop the bunny hop thread cleanly after the loop ends
+			//misc::stopItemESPThread();
 			this->destroyWindow();
 			exit(0);
 		}
@@ -175,7 +177,7 @@ void overlayESP::renderLoop(MemoryManagement::moduleData client) {
 
 		//std::this_thread::sleep_for(std::chrono::milliseconds(1 / 100));
 		std::this_thread::sleep_for(std::chrono::microseconds(1));
-	}
+	}	
 }
 
 void overlayESP::destroyWindow() {
