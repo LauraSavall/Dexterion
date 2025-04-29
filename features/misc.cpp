@@ -9,29 +9,13 @@
 
 // Initialize static variables
 std::vector<misc::DamageData> misc::damageList;
-int misc::lastUpdateTime = 0;
-#define FL_ONGROUND (1 << 0)
 
 namespace { // Anonymous namespace for internal linkage
     std::atomic<bool> g_autoBhopEnabled = false;
     std::atomic<bool> g_stopBhopThread = false;
     std::thread g_bhopThread;
 
-	std::thread g_itemESPThread;
-	std::atomic<bool> g_stopItemESPThread = false;
 
-	int getRandomInt(int min, int max) {
-		// 1. Seed the random number engine (only needs to be done once ideally,
-		//    but doing it here for a self-contained function is okay for simplicity)
-		std::random_device rd; // Obtain a random number from hardware
-		std::mt19937 gen(rd()); // Seed the generator
-	
-		// 2. Define the range (inclusive)
-		std::uniform_int_distribution<> distrib(min, max);
-	
-		// 3. Generate and return the random number
-		return distrib(gen);
-	}
 
     // Worker function for the bunny hop thread (keep it internal)
 //     void bhopWorker(LocalPlayer localPlayer) {
@@ -117,64 +101,7 @@ void bhopWorker(LocalPlayer localPlayer) {
     }
 } 
 
-void itemESPWorker(C_CSPlayerPawn C_CSPlayerPawn, CGameSceneNode CGameSceneNode, view_matrix_t viewMatrix) {
-	if (!overlayESP::isMenuOpen()) {
-		if (!misc::isGameWindowActive()) return;
-	}
-	while (!g_stopItemESPThread) {
-
-	for (int i = 65; i < 1324; i++) {
-		// Entity
-		C_CSPlayerPawn.value = i;
-		C_CSPlayerPawn.getListEntry();
-		if (C_CSPlayerPawn.listEntry == 0) continue;
-		C_CSPlayerPawn.getPlayerPawn();
-		if (C_CSPlayerPawn.playerPawn == 0) continue;
-		if (C_CSPlayerPawn.getOwner() != -1) continue;
-
-		// Entity name
-		uintptr_t entity = MemMan.ReadMem<uintptr_t>(C_CSPlayerPawn.playerPawn + 0x10);
-		uintptr_t designerNameAddy = MemMan.ReadMem<uintptr_t>(entity + 0x20);
-
-		char designerNameBuffer[MAX_PATH]{};
-		MemMan.ReadRawMem(designerNameAddy, designerNameBuffer, MAX_PATH);
-
-		std::string name = std::string(designerNameBuffer);
-
-		if (strstr(name.c_str(), "weapon_")) name.erase(0, 7);
-		//else if (strstr(name.c_str(), "_projectile")) name.erase(name.length() - 11, 11);
-		//else if (strstr(name.c_str(), "baseanimgraph")) name = "defuse kit";
-		else continue;
-
-		// Origin position of entity
-		CGameSceneNode.value = C_CSPlayerPawn.getCGameSceneNode();
-		CGameSceneNode.getOrigin();
-		CGameSceneNode.origin = CGameSceneNode.origin.worldToScreen(viewMatrix);
-
-		// Drawing
-		if (CGameSceneNode.origin.z >= 0.01f) {
-			ImVec2 textSize = ImGui::CalcTextSize(name.c_str());
-			auto [horizontalOffset, verticalOffset] = getTextOffsets(textSize.x, textSize.y, 2.f);
-
-			ImFont* gunText = {};
-			if (std::filesystem::exists(DexterionSystem::weaponIconsTTF)) {
-				gunText = imGuiMenu::weaponIcons;
-				name = gunIcon(name);
-			}
-			else gunText = imGuiMenu::espNameText;
-
-			ImGui::GetBackgroundDrawList()->AddText(gunText, 12, { CGameSceneNode.origin.x - horizontalOffset, CGameSceneNode.origin.y - verticalOffset }, ImColor(espConf.attributeColours[0], espConf.attributeColours[1], espConf.attributeColours[2]), name.c_str());
-		}
-	}
-	std::this_thread::sleep_for(std::chrono::milliseconds(1)); 
 }
-} 
-
-
-}
-
-// Flags for player ground status check
-
 
 bool misc::isGameWindowActive() {
 	HWND hwnd = GetForegroundWindow();
@@ -217,32 +144,6 @@ void misc::stopBhopThread() {
     }
      g_autoBhopEnabled = false; // Ensure state is off on exit
 }
-
-
-void misc::startItemESPThread(C_CSPlayerPawn C_CSPlayerPawn, CGameSceneNode CGameSceneNode, view_matrix_t viewMatrix) {
-    if (!g_itemESPThread.joinable()) { // Check if thread is not already running
-        g_stopItemESPThread = false;   // Reset the stop flag
-        g_itemESPThread = std::thread(itemESPWorker, C_CSPlayerPawn, CGameSceneNode, viewMatrix); // Create and start the thread
-        // Optional: Log thread start
-        // Logger::info("[Misc] BunnyHop thread started.");
-    }
-}
-
-void misc::stopItemESPThread() {
-    if (g_itemESPThread.joinable()) {
-		g_stopItemESPThread = true; // Signal the thread to stop its loop
-        try {
-            g_itemESPThread.join(); // Wait for the thread to finish execution
-            // Optional: Log thread stop
-            // Logger::info("[Misc] BunnyHop thread stopped and joined.");
-        } catch (const std::system_error& e) {
-            // Handle potential errors during join (e.g., if thread wasn't joinable)
-        }
-    }
-
-}
-
-
 
 
 

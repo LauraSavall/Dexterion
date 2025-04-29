@@ -47,9 +47,6 @@ struct DamageData {
     void startBhopThread(LocalPlayer localPlayer); // Function to initialize and start the thread
 	void stopBhopThread();  // Function to signal the thread to stop and join it
 
-    void startItemESPThread(C_CSPlayerPawn C_CSPlayerPawn, CGameSceneNode CGameScene, view_matrix_t viewMatrix);
-
-    void stopItemESPThread();
 
 
 
