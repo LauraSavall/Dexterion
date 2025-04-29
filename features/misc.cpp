@@ -5,7 +5,7 @@
 #include <thread>         // For std::thread
 #include <chrono>         // For timing (milliseconds, steady_clock)
 #include <random>
-
+#include "../util/attributes.cpp"
 
 // Initialize static variables
 std::vector<misc::DamageData> misc::damageList;
@@ -58,42 +58,54 @@ namespace { // Anonymous namespace for internal linkage
 
 void bhopWorker(LocalPlayer localPlayer) {
 
-    const uintptr_t m_flSimulationTimeOffset = clientDLL::C_BaseEntity_["m_flSimulationTime"];
-    float lastSimTime = MemMan.ReadMem<float>(localPlayer.getPlayerPawn() + m_flSimulationTimeOffset);
-
-
+	//uintptr_t ctrl = localPlayer.getPlayerController();
+	//uint32_t lastTick = MemMan.ReadMem<uint32_t>( ctrl + clientDLL::CBasePlayerController_["m_nTickBase"] );
+	
+    //auto lastTime = std::chrono::high_resolution_clock::now();
 
 	mouse_event(MOUSEEVENTF_WHEEL, 0, 0, -120, 0);
-	while (!g_stopBhopThread) { // Loop until explicitly told to stop
-
-		//int flags = localPlayer.getGroundEntity();
-		//Logger::info(std::format("[Bhop] Flags: {}", flags));
-		
-
+	while (!g_stopBhopThread) { 
 		Vector3 playerVelocity = MemMan.ReadMem<Vector3>(localPlayer.getPlayerPawn() + clientDLL::C_BaseEntity_["m_vecVelocity"]);
-        float curSimTime = MemMan.ReadMem<float>(localPlayer.getPlayerPawn() + m_flSimulationTimeOffset);
 
-        // only run when the engine has actually advanced one or more ticks
-        if (curSimTime != lastSimTime) {
-            float delta    = curSimTime - lastSimTime;     // in seconds
-            float msDelta  = delta * 1000.0f;              // in ms
-            lastSimTime    = curSimTime;                   // prepare for next loop
-
-			Logger::info(std::format("[Bhop] Frame Time (Delta SimTime): {:.4f} ms", msDelta));
-
-
-		}
+		//uint32_t curTick = MemMan.ReadMem<uint32_t>( ctrl + clientDLL::CBasePlayerController_["m_nTickBase"] );
 
 
 
+		//if (curTick != lastTick) {
+            // compute elapsed real time
+            // auto now      = std::chrono::high_resolution_clock::now();
+            // auto elapsed  = std::chrono::duration_cast<
+            //                     std::chrono::microseconds
+            //                 >(now - lastTime).count();
 
-		if (playerVelocity.z  <= -145.0f || playerVelocity.z == 0.0f) {
-			//std::this_thread::sleep_for(std::chrono::milliseconds(16));
-			//std::this_thread::sleep_for(std::chrono::microseconds(15626));
-			std::this_thread::sleep_for(std::chrono::microseconds(15626));
-			//Logger::info("[Bhop] Player velocity");
-			mouse_event(MOUSEEVENTF_WHEEL, 0, 0, -120, 0);
-		}
+			// auto us = std::chrono::duration_cast<std::chrono::microseconds>(now - lastTime).count();
+			// Logger::info("… after {} μs", us);
+
+            // Logger::info(
+            //     "tick changed to " + std::to_string(curTick)
+            //     + " after " + std::to_string(elapsed) + " ms"
+            // );
+
+
+
+			// if (playerVelocity.z  <= -145.0f || playerVelocity.z == 0.0f) {
+			// 	std::this_thread::sleep_for(std::chrono::microseconds(15625));
+			// 	mouse_event(MOUSEEVENTF_WHEEL, 0, 0, -120, 0);
+			// }
+
+			if (playerVelocity.z  <= -273.0f || playerVelocity.z == 0.0f) {
+				std::this_thread::sleep_for(std::chrono::microseconds(15625));
+				mouse_event(MOUSEEVENTF_WHEEL, 0, 0, -120, 0);
+				//Logger::info("123");
+			}
+
+        //    lastTick = curTick;
+       //     lastTime = now;
+       // }
+
+
+
+
 
 		//if (flags != -1) {
 				//mouse_event(MOUSEEVENTF_WHEEL, 0, 0, -120, 0);
@@ -247,7 +259,7 @@ void misc::bunnyHop(LocalPlayer localPlayer) {
 
     auto now = std::chrono::steady_clock::now();
     if (now - lastToggleTime < toggleCooldown) {
-        return; // Still in cooldown, do nothing
+        return; 
     }
 	else{
 

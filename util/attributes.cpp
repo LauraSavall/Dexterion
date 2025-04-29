@@ -104,6 +104,14 @@ bool CCSPlayerController::isSpectating(bool localPlayer)
 	return this->getSpectating() != 0;
 }
 
+uint32_t CCSPlayerController::currentGameTick() {
+	uintptr_t LocalPlayer = MemMan.ReadMem<uintptr_t>(baseAddy + offsets::clientDLL["dwLocalPlayerController"]);
+
+	uintptr_t tick = MemMan.ReadMem<uintptr_t>(LocalPlayer + clientDLL::clientDLLOffsets["CBasePlayerController"]["fields"]["m_nTickBase"]);
+
+	return tick;
+}
+
 uintptr_t CCSPlayerController::getSpectating()
 {
 	uint32_t spectatorPawn = MemMan.ReadMem<uint32_t>(value + clientDLL::clientDLLOffsets["CBasePlayerController"]["fields"]["m_hPawn"]);
