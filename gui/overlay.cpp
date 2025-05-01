@@ -105,7 +105,7 @@ void overlayESP::initWindow(int nShowCmd) {
 	ImGui_ImplWin32_Init(window);
 	ImGui_ImplDX11_Init(device, deviceContext);
 
-	Logger::success("[overlay.cpp] Overlay Drew Succesfully!");
+	//success("[overlay.cpp] Overlay Drew Succesfully!");
 }
 
 bool overlayESP::menutoggle = true;
@@ -172,7 +172,7 @@ void overlayESP::renderLoop(MemoryManagement::moduleData client) {
 
 		if (!check) {
 			check = !check;
-			Logger::success("[overlay.cpp] Overlay drew succesfully! Cheat loaded.");
+			//Logger::success("[overlay.cpp] Overlay drew succesfully! Cheat loaded.");
 		}
 
 		//std::this_thread::sleep_for(std::chrono::milliseconds(1 / 100));

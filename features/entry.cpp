@@ -1,4 +1,5 @@
 #include "entry.hpp"
+#include "misc.hpp"
 #include <format>
 #include <set>
 #include <fstream>
@@ -70,6 +71,14 @@ void mainLoop(bool state, MemoryManagement::moduleData client) {
 
 	// Bunny Hop
 	if (miscConf.bhopEnabled) misc::bunnyHop(localPlayer);
+
+	    if (localPlayer.getPlayerPawn() != 0) { // Only draw if local player is valid
+        float currentSpeed = misc::g_currentSpeed2D.load(); // Read the shared speed
+        ImGui::SetNextWindowPos(ImVec2(10, 10), ImGuiCond_Always);
+        ImGui::Begin("Speed Display", nullptr, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoSavedSettings);
+        ImGui::Text("Speed: %.2f", currentSpeed);
+        ImGui::End();
+    }
 
 	// Tigger
 	if (aimConf.trigger) aim::triggerBot(localPlayer, client.base);

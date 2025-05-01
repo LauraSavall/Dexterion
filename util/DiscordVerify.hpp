@@ -32,7 +32,7 @@ namespace DiscordVerify {
         }
         catch (const std::exception& e)
         {
-            Logger::error("[DiscordVerify.hpp] Request failed");
+            //Logger::error("[DiscordVerify.hpp] Request failed");
             return "Failed to parse token";
         }
     }

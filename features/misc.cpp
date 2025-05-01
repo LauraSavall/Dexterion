@@ -4,11 +4,10 @@
 #include <windows.h>      // For GetAsyncKeyState, mouse_event
 #include <thread>         // For std::thread
 #include <chrono>         // For timing (milliseconds, steady_clock)
-#include <random>
-#include "../util/attributes.cpp"
 
 // Initialize static variables
 std::vector<misc::DamageData> misc::damageList;
+std::atomic<float> misc::g_currentSpeed2D = { 0.0f };
 
 namespace { // Anonymous namespace for internal linkage
     std::atomic<bool> g_autoBhopEnabled = false;
@@ -40,6 +39,7 @@ namespace { // Anonymous namespace for internal linkage
 
 // } //nd anonymous namespace
 
+
 void bhopWorker(LocalPlayer localPlayer) {
 
 	//uintptr_t ctrl = localPlayer.getPlayerController();
@@ -65,10 +65,6 @@ void bhopWorker(LocalPlayer localPlayer) {
 			// auto us = std::chrono::duration_cast<std::chrono::microseconds>(now - lastTime).count();
 			// Logger::info("… after {} μs", us);
 
-            // Logger::info(
-            //     "tick changed to " + std::to_string(curTick)
-            //     + " after " + std::to_string(elapsed) + " ms"
-            // );
 
 
 
@@ -77,11 +73,21 @@ void bhopWorker(LocalPlayer localPlayer) {
 			// 	mouse_event(MOUSEEVENTF_WHEEL, 0, 0, -120, 0);
 			// }
 
-			if (playerVelocity.z  <= -273.0f || playerVelocity.z == 0.0f) {
+
+			if (playerVelocity.z  <= -250.0f || playerVelocity.z == 0.0f) {
 				std::this_thread::sleep_for(std::chrono::microseconds(15625));
 				mouse_event(MOUSEEVENTF_WHEEL, 0, 0, -120, 0);
 				//Logger::info("123");
 			}
+			// float speed2 = std::sqrt(playerVelocity.x * playerVelocity.x + playerVelocity.y * playerVelocity.y);
+        	// std::string speedMessage = "Speed: " + std::to_string(speed2);
+       		// Logger::info(speedMessage);
+			float speed2D = std::sqrt(playerVelocity.x * playerVelocity.x + playerVelocity.y * playerVelocity.y);
+            misc::g_currentSpeed2D.store(speed2D);
+
+
+
+			
 
         //    lastTick = curTick;
        //     lastTime = now;
@@ -99,6 +105,8 @@ void bhopWorker(LocalPlayer localPlayer) {
 		//	}
 		
     }
+	misc::g_currentSpeed2D.store(0.0f);
+
 } 
 
 }

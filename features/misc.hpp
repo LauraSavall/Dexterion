@@ -6,6 +6,9 @@
 #include "../gui/menu.hpp"
 
 #include <algorithm>
+#include <cmath>
+#include <string>
+#include <atomic>
 
 namespace misc {
 
@@ -17,6 +20,8 @@ namespace misc {
 	bool isGameWindowActive();
 	void bunnyHop(LocalPlayer localPlayer);
 	
+
+
 	// Damage tracking structure (similar to CSGO implementation)
 // In misc.hpp
 struct DamageData {
@@ -35,14 +40,15 @@ struct DamageData {
 	// Storage for damage data
 	extern std::vector<DamageData> damageList;
 	extern int lastUpdateTime;
-	
+    extern std::atomic<float> g_currentSpeed2D;
+
 	// Damage list functions
 	void displayDamageList();                                  // Display the damage list UI
 	void addDamage(std::string name, int damage, uintptr_t playerHandle); // Add damage for a player
 	void clearDamageList();                                   // Clear the damage list (for round reset)
 	void updatePlayerDamage(std::string name, int totalDamage, uintptr_t playerHandle);
 	void updateDamageList(MemoryManagement::moduleData client);
-
+        extern std::atomic<float> g_currentSpeed2D;
     
     void startBhopThread(LocalPlayer localPlayer); // Function to initialize and start the thread
 	void stopBhopThread();  // Function to signal the thread to stop and join it

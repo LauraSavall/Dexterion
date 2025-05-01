@@ -231,12 +231,12 @@ void imGuiMenu::espRender() {
 void imGuiMenu::aimRender() {
 	if (tabCount == 2) {
 
-		ImGui::BeginChild("Aimbot", ImVec2(imGuiMenu::widthSeparatorInt, imGuiMenu::heightSeparatorInt), true);
+		ImGui::BeginChild("bot", ImVec2(imGuiMenu::widthSeparatorInt, imGuiMenu::heightSeparatorInt), true);
 		ImGui::PushFont(imGuiMenu::titleText);
-		ImGui::Text("Aimbot");
+		ImGui::Text("bot");
 		ImGui::PopFont();
 		ImGui::Dummy(ImVec2(0.0f, textSeparatorSpace));
-		ImGui::Checkbox("Aimbot", &aimConf.state);
+		ImGui::Checkbox("bot", &aimConf.state);
 		ImGui::Dummy(ImVec2(0.0f, textSeparatorSpace));
 		ImGui::Checkbox("Fov circle", &aimConf.fovCircle);
 		ImGui::Dummy(ImVec2(0.0f, textSeparatorSpace));
@@ -253,16 +253,16 @@ void imGuiMenu::aimRender() {
 
 		ImGui::BeginChild("Misc", ImVec2(0, imGuiMenu::heightSeparatorInt), true);
 		ImGui::PushFont(imGuiMenu::titleText);
-		ImGui::Text("Miscellaneous aim functions");
+		ImGui::Text("misc functions");
 		ImGui::PopFont();
 		ImGui::Dummy(ImVec2(0.0f, textSeparatorSpace));
-		ImGui::Checkbox("Recoil Control", &aimConf.rcs);
+		ImGui::Checkbox("Rec Cont", &aimConf.rcs);
 		ImGui::Dummy(ImVec2(0.0f, textSeparatorSpace));
 		ImGui::Checkbox("Player lock", &aimConf.playerLock);
 		ImGui::Dummy(ImVec2(0.0f, textSeparatorSpace));
-		ImGui::Checkbox("Trigger Bot", &aimConf.trigger);
+		ImGui::Checkbox("gger Bot", &aimConf.trigger);
 		ImGui::Dummy(ImVec2(0.0f, textSeparatorSpace));
-		ImGui::Checkbox("Trigger bot hot key", &aimConf.isHotTrigger);
+		ImGui::Checkbox("gger bot hot key", &aimConf.isHotTrigger);
 		if (aimConf.isHotTrigger) {
 			ImGui::Dummy(ImVec2(0.0f, textSeparatorSpace));
 			if (ImGui::BeginCombo("Hot key", aimConf.hotKey[aimConf.hotSelectTrigger].c_str())) {
@@ -281,7 +281,7 @@ void imGuiMenu::aimRender() {
 			}
 		}
 		ImGui::Dummy(ImVec2(0.0f, textSeparatorSpace));
-		if (ImGui::BeginCombo("Aimbot Preference", aimConf.aimModes[aimConf.aimMode].c_str())) {
+		if (ImGui::BeginCombo("bot Preference", aimConf.aimModes[aimConf.aimMode].c_str())) {
 			for (int i = 0; i < aimConf.aimModes.size(); ++i) {
 				const bool isSelected = (aimConf.aimMode == i);
 
@@ -319,7 +319,7 @@ void imGuiMenu::aimRender() {
 			ImGui::EndCombo();
 		}
 		ImGui::Dummy(ImVec2(0.0f, textSeparatorSpace));
-		ImGui::Checkbox("Aim bot hot key", &aimConf.isHotAim);
+		ImGui::Checkbox("bot hot key", &aimConf.isHotAim);
 		ImGui::Dummy(ImVec2(0.0f, textSeparatorSpace));
 		if (aimConf.isHotAim) {
 			if (ImGui::BeginCombo("Hot key", aimConf.hotKey[aimConf.hotSelectAim].c_str())) {
@@ -402,51 +402,7 @@ void imGuiMenu::miscRender() {
 
 void imGuiMenu::aboutMeRender() {
 	if (tabCount == 4) {
-		ImGui::BeginChild("About the project", ImVec2(0, 0), true);
-		ImGui::PushFont(imGuiMenu::titleText);
-		ImGui::Text("Github");
-		ImGui::PopFont();
-		ImGui::TextLinkOpenURL("Dexterion Github", "https://github.com/Skwrr/Dexterion");
-		ImGui::Dummy(ImVec2(0.0f, textSeparatorSpace));
-		ImGui::TextLinkOpenURL("Tim Apple Github Fork", "https://github.com/kristofhracza/tim_apple");
-		ImGui::Dummy(ImVec2(0.0f, textSeparatorSpace));
-		ImGui::Dummy(ImVec2(0.0f, textSeparatorSpace));
-		ImGui::PushFont(imGuiMenu::titleText);
-		ImGui::Text("HackVsHack");
-		ImGui::PopFont();
-		ImGui::Dummy(ImVec2(0.0f, textSeparatorSpace));
-		ImGui::PushFont(imGuiMenu::subTitleText);
-		ImGui::Text("Release thread");
-		ImGui::PopFont();
-		ImGui::TextLinkOpenURL("Dexterion", "https://hackvshack.net/threads/dexterion-semi-external-cs2-cheat-updated-10-07-2024.4978/");
-		ImGui::Dummy(ImVec2(0.0f, textSeparatorSpace));
-		ImGui::Dummy(ImVec2(0.0f, textSeparatorSpace));
-		ImGui::PushFont(imGuiMenu::titleText);
-		ImGui::Text("UnknownCheats");
-		ImGui::PopFont();
-		ImGui::Dummy(ImVec2(0.0f, textSeparatorSpace));
-		ImGui::PushFont(imGuiMenu::subTitleText);
-		ImGui::Text("Release thread");
-		ImGui::PopFont();
-		ImGui::TextLinkOpenURL("Dexterion", " https://www.unknowncheats.me/forum/counter-strike-2-a/647464-dexterion-semi-external-cs2-cheat.html");
-		ImGui::Dummy(ImVec2(0.0f, textSeparatorSpace));
-		ImGui::TextLinkOpenURL("Tim Apple", "https://www.unknowncheats.me/forum/counter-strike-2-releases/609206-cs2-external-cheat-tim-apple.html");
-		ImGui::Dummy(ImVec2(0.0f, textSeparatorSpace));
-		ImGui::PushFont(imGuiMenu::subTitleText);
-		ImGui::Text("Developer Profile");
-		ImGui::PopFont();
-		ImGui::TextLinkOpenURL("UC Author Profile", "https://www.unknowncheats.me/forum/members/6169955.html");
-		ImGui::Dummy(ImVec2(0.0f, textSeparatorSpace));
-		ImGui::TextLinkOpenURL("Discord", "https://www.unknowncheats.me/forum/members/6169955.html");
-		ImGui::Dummy(ImVec2(0.0f, textSeparatorSpace));
-		ImGui::PushFont(imGuiMenu::titleText);
-		ImGui::Text("Discord");
-		ImGui::PopFont();
-		ImGui::TextLinkOpenURL("Click me!", "https://discord.gg/jwueZBpnyY");
-		ImGui::Dummy(ImVec2(0.0f, textSeparatorSpace));
-		ImGui::PushFont(imGuiMenu::titleText);
-		ImGui::Text(("Version: " + utils::version).c_str());
-		ImGui::EndChild();
+		
 	}
 }
 
@@ -497,7 +453,7 @@ void imGuiMenu::accountRender() {
 		}
 
 		if (ImGui::BeginPopupModal("CopyToken", NULL, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove)) {
-			ImGui::Text("Your token has been copied to your clipboard!");
+			//ImGui::Text("Your token has been copied to your clipboard!");
 			ImGui::Separator();
 			if (ImGui::Button("OK", ImVec2(120, 0))) { ImGui::CloseCurrentPopup(); }
 			ImGui::EndPopup();
@@ -524,7 +480,7 @@ void imGuiMenu::menuBar() {
 void imGuiMenu::renderMenu(bool state) {
 	ImGui::PushFont(normalText);
 	ImGui::SetNextWindowSize({WIDTH,HEIGHT}, ImGuiCond_FirstUseEver);
-	ImGui::Begin("Dexterion", NULL, ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoCollapse);
+	ImGui::Begin("SteelSeries GG", NULL, ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoCollapse);
 	
 	// Config
 	setStyle();

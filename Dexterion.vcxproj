@@ -24,7 +24,7 @@
     <ProjectGuid>{e6cbdc8b-c819-4a41-85b1-27203f206e29}</ProjectGuid>
     <RootNamespace>dexterion</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
-    <ProjectName>Dexterion</ProjectName>
+    <ProjectName>SteelSeries GG</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">

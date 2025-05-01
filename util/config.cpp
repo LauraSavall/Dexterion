@@ -57,7 +57,7 @@ inline bool aimConfig::from_json(nlohmann::json json) {
 		hotSelectTrigger = json["hotSelectTrigger"];
 	}
 	catch (nlohmann::json::type_error& ignored) {
-		Logger::warn("[Config.cpp] aimConfig section has missing properties, using defaults for missing options.");
+		//Logger::warn("[Config.cpp] aimConfig section has missing properties, using defaults for missing options.");
 	}
 
 	return true;
@@ -220,7 +220,7 @@ inline bool miscConfig::from_json(nlohmann::json json) {
 		}
 	}
 	catch (nlohmann::json::type_error& ignored) {
-		Logger::warn("[Config.cpp] miscConfig section has missing properties, using defaults for missing options.");
+		//Logger::warn("[Config.cpp] miscConfig section has missing properties, using defaults for missing options.");
 	}
 
 	return true;
@@ -238,7 +238,7 @@ void config::load(int index) {
 	if (index < 0 || index >= CONFIG_NAMES.size() || index >= MAX_CONFIGS) return;
 
 	try {
-		Logger::info(L"[Config.cpp] Loading config: " + CONFIG_NAMES[index], true);
+		//info(L"[Config.cpp] Loading config: " + CONFIG_NAMES[index], true);
 		configFiles[index] = json::readFromJsonFile(utils::getConfigPath(), CONFIG_NAMES[index]);
 		aimConf.from_json(configFiles[index]["aimConf"]);
 		espConf.from_json(configFiles[index]["espConf"]);
@@ -252,8 +252,8 @@ void config::load(int index) {
 
 		str << "[Config.cpp] Error: " << e.what();
 
-		Logger::error(str.str(), true);
-		Logger::warn("[Config.cpp] Configuration section has missing properties, using defaults for missing options.", true);
+		//Logger::error(str.str(), true);
+		//Logger::warn("[Config.cpp] Configuration section has missing properties, using defaults for missing options.", true);
 	}
 }
 
@@ -270,7 +270,7 @@ void config::save(int index) {
 
 void config::refresh() {
 
-	Logger::info("[Config.cpp] Refreshing configs!");
+	//Logger::info("[Config.cpp] Refreshing configs!");
 
 	CONFIG_NAMES.clear();
 	configFiles->clear();
@@ -290,7 +290,7 @@ void config::refresh() {
 	else
 		std::filesystem::create_directory(utils::getConfigPath());
 
-	Logger::success("[Config.cpp] Config files refreshed succesfully!");
+	//success("[Config.cpp] Config files refreshed succesfully!");
 }
 
 void config::create(std::wstring name) {
