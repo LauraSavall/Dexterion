@@ -47,7 +47,7 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 		while ((procId = MemMan.getPid(L"cs2.exe")) == 0)
 			std::this_thread::sleep_for(std::chrono::milliseconds(1500));
 	}
-	//Logger::success(std::format("[MemMan] Counter Strike 2 Found (%d)!", procId));
+	//Logger::success("LOL: "+procId);
 	//Logger::info("[Config.hpp] Checking for config file...");
 	config::refresh();
 	if (config::exists(0)) { // passing 0 cause setup

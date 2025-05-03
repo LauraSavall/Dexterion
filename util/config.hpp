@@ -111,6 +111,10 @@ struct miscConfig {
 	bool bombTimer;
 	bool damageList;
 	bool bhopEnabled; // Bunny hop feature
+	float bhopJumpVelocityThreshold = -290.0f; // Added for configurable bhop jump velocity
+	int bhopSleep = 15625;
+	int bhopSleepForZero = 15625;
+	int trigg = 3;
 	bool consoleVisible = true;
 	bool obsBypass = true;
 	float bombTimerColours[4] = { 0.f, 1.f, 0.5f, 1.f };

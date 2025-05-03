@@ -35,7 +35,7 @@ HWND overlayESP::createWindow(int horizontalSize, int verticallSize) {
 	this->window = window;
 
 	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 10);
-	printf("[overlay.cpp] Overlay Created Succesfully!\n");
+	printf("jol!\n");
 
 	return window;
 }

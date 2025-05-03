@@ -364,6 +364,17 @@ void imGuiMenu::miscRender() {
 		ImGui::Checkbox("Damage List", &miscConf.damageList);
 		ImGui::Dummy(ImVec2(0.0f, textSeparatorSpace));
 		ImGui::Checkbox("Bunny Hop", &miscConf.bhopEnabled);
+		if (miscConf.bhopEnabled) { // Show slider only if bhop is enabled
+			ImGui::Dummy(ImVec2(0.0f, textSeparatorSpace));
+			ImGui::SliderFloat("Bhop Vel Thresh", &miscConf.bhopJumpVelocityThreshold, -350.0f, -50.0f, "%.1f"); // Added Slider
+			ImGui::Dummy(ImVec2(0.0f, textSeparatorSpace));
+			ImGui::InputInt("NormSleep", &miscConf.bhopSleep);
+			ImGui::Dummy(ImVec2(0.0f, textSeparatorSpace));
+			ImGui::InputInt("Zerosleep", &miscConf.bhopSleepForZero);
+			ImGui::Dummy(ImVec2(0.0f, textSeparatorSpace));
+			ImGui::InputInt("ErrorTrigg", &miscConf.trigg);
+
+		}
 		ImGui::EndChild();
 
 		verticalSplitter(imGuiMenu::widthSeparatorInt, imGuiMenu::heightSeparatorInt);

@@ -186,6 +186,10 @@ inline nlohmann::json miscConfig::to_json() {
 	json["spectator"] = spectator;
 	json["damageList"] = damageList;
 	json["bhopEnabled"] = bhopEnabled;
+	json["bhopJumpVelocityThreshold"] = bhopJumpVelocityThreshold; // Added serialization
+	json["bhopSleep"] = bhopSleep; // Added serialization
+	json["bhopSleepForZero"] = bhopSleepForZero; // Added serialization
+
 	json["deathmatchMode"] = deathmatchMode;
 	json["consoleVisible"] = consoleVisible;
 	json["obsBypass"] = obsBypass;
@@ -217,6 +221,26 @@ inline bool miscConfig::from_json(nlohmann::json json) {
 		// Try to load bhopEnabled, but don't fail if it doesn't exist in older configs
 		if (json.contains("bhopEnabled")) {
 			bhopEnabled = json["bhopEnabled"];
+		}
+		if (json.contains("bhopJumpVelocityThreshold")) { // Added deserialization
+			bhopJumpVelocityThreshold = json["bhopJumpVelocityThreshold"];
+		} else {
+			bhopJumpVelocityThreshold = -290.0f; // Default value if not found
+		}
+				if (json.contains("bhopSleep")) { // Added deserialization
+			bhopSleep = json["bhopSleep"];
+		} else {
+			bhopSleep = 15625; // Default value if not found
+		}
+				if (json.contains("bhopSleepForZero")) { // Added deserialization
+			bhopSleepForZero = json["bhopSleepForZero"];
+		} else {
+			bhopSleepForZero = 15625; // Default value if not found
+		}
+						if (json.contains("trigg")) { // Added deserialization
+			trigg = json["trigg"];
+		} else {
+			trigg = 3; // Default value if not found
 		}
 	}
 	catch (nlohmann::json::type_error& ignored) {

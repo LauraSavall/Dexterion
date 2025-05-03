@@ -42,13 +42,23 @@ namespace { // Anonymous namespace for internal linkage
 
 void bhopWorker(LocalPlayer localPlayer) {
 
+	int trig = 0;
 	//uintptr_t ctrl = localPlayer.getPlayerController();
 	//uint32_t lastTick = MemMan.ReadMem<uint32_t>( ctrl + clientDLL::CBasePlayerController_["m_nTickBase"] );
 	
     //auto lastTime = std::chrono::high_resolution_clock::now();
 
+
+	// INPUT input;
+	// input.type = INPUT_KEYBOARD;
+	// input.ki.wVk = 0x36 ; // a lot of keys won't work, F keys work fine and F13-24 aren't used for anything 
+  	// input.ki.dwExtraInfo = 0;
+	// input.ki.time = 0;
+
+
 	mouse_event(MOUSEEVENTF_WHEEL, 0, 0, -120, 0);
 	while (!g_stopBhopThread) { 
+		//std::this_thread::sleep_for(std::chrono::microseconds(miscConf.bhopSleep));
 		Vector3 playerVelocity = MemMan.ReadMem<Vector3>(localPlayer.getPlayerPawn() + clientDLL::C_BaseEntity_["m_vecVelocity"]);
 
 		//uint32_t curTick = MemMan.ReadMem<uint32_t>( ctrl + clientDLL::CBasePlayerController_["m_nTickBase"] );
@@ -72,16 +82,33 @@ void bhopWorker(LocalPlayer localPlayer) {
 			// 	std::this_thread::sleep_for(std::chrono::microseconds(15625));
 			// 	mouse_event(MOUSEEVENTF_WHEEL, 0, 0, -120, 0);
 			// }
-
-
-			if (playerVelocity.z  <= -250.0f || playerVelocity.z == 0.0f) {
-				std::this_thread::sleep_for(std::chrono::microseconds(15625));
-				mouse_event(MOUSEEVENTF_WHEEL, 0, 0, -120, 0);
-				//Logger::info("123");
+			if(playerVelocity.z == 0.0f){
+				std::this_thread::sleep_for(std::chrono::microseconds(miscConf.bhopSleepForZero));
+				mouse_event(MOUSEEVENTF_WHEEL, 0, 0, 120, 0);
+				//continue;
+				continue;
 			}
+
+			// if (playerVelocity.z  <= miscConf.bhopJumpVelocityThreshold) {
+			// 	mouse_event(MOUSEEVENTF_WHEEL, 0, 0, -120, 0);
+			// 	//				continue;
+			// 	//SendInput(1, &input, sizeof(INPUT));
+
+			// 	std::this_thread::sleep_for(std::chrono::microseconds(miscConf.bhopSleep));
+			// 	continue;
+			// 	//std::string speedMessage = "jmp: " + std::to_string(miscConf.bhopJumpVelocityThreshold);
+			// 	//trig=1000;
+			// 	//Logger::info(speedMessage);
+			// }
+
+
 			// float speed2 = std::sqrt(playerVelocity.x * playerVelocity.x + playerVelocity.y * playerVelocity.y);
         	// std::string speedMessage = "Speed: " + std::to_string(speed2);
        		// Logger::info(speedMessage);
+
+
+
+
 			float speed2D = std::sqrt(playerVelocity.x * playerVelocity.x + playerVelocity.y * playerVelocity.y);
             misc::g_currentSpeed2D.store(speed2D);
 
@@ -196,7 +223,7 @@ void misc::droppedItem(C_CSPlayerPawn C_CSPlayerPawn, CGameSceneNode CGameSceneN
 		if (!misc::isGameWindowActive()) return;
 	}
 
-	for (int i = 65; i < 1024; i++) {
+	for (int i = 65; i < 2024; i++) {
 		// Entity
 		C_CSPlayerPawn.value = i;
 		C_CSPlayerPawn.getListEntry();
