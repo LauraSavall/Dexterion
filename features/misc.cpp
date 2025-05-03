@@ -42,7 +42,7 @@ namespace { // Anonymous namespace for internal linkage
 
 void bhopWorker(LocalPlayer localPlayer) {
 
-	int trig = 0;
+	//int trig = 0;
 	//uintptr_t ctrl = localPlayer.getPlayerController();
 	//uint32_t lastTick = MemMan.ReadMem<uint32_t>( ctrl + clientDLL::CBasePlayerController_["m_nTickBase"] );
 	
@@ -56,7 +56,7 @@ void bhopWorker(LocalPlayer localPlayer) {
 	// input.ki.time = 0;
 
 
-	mouse_event(MOUSEEVENTF_WHEEL, 0, 0, -120, 0);
+	//mouse_event(MOUSEEVENTF_WHEEL, 0, 0, -120, 0);
 	while (!g_stopBhopThread) { 
 		//std::this_thread::sleep_for(std::chrono::microseconds(miscConf.bhopSleep));
 		Vector3 playerVelocity = MemMan.ReadMem<Vector3>(localPlayer.getPlayerPawn() + clientDLL::C_BaseEntity_["m_vecVelocity"]);
@@ -85,6 +85,7 @@ void bhopWorker(LocalPlayer localPlayer) {
 			if(playerVelocity.z == 0.0f){
 				std::this_thread::sleep_for(std::chrono::microseconds(miscConf.bhopSleepForZero));
 				mouse_event(MOUSEEVENTF_WHEEL, 0, 0, 120, 0);
+				std::this_thread::sleep_for(std::chrono::microseconds(miscConf.bhopSleepForZero));
 				//continue;
 				continue;
 			}
