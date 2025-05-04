@@ -18,7 +18,7 @@ namespace misc {
 
 	void droppedItem(C_CSPlayerPawn C_CSPlayerPawn, CGameSceneNode CGameSceneNode, view_matrix_t viewMatrix);
 	bool isGameWindowActive();
-	void bunnyHop(LocalPlayer localPlayer);
+	void bunnyHop(DWORD_PTR base, LocalPlayer localPlayer);
 	
 
 
@@ -50,7 +50,7 @@ struct DamageData {
 	void updateDamageList(MemoryManagement::moduleData client);
         extern std::atomic<float> g_currentSpeed2D;
     
-    void startBhopThread(LocalPlayer localPlayer); // Function to initialize and start the thread
+    void startBhopThread(DWORD_PTR base, LocalPlayer localPlayer); // Function to initialize and start the thread
 	void stopBhopThread();  // Function to signal the thread to stop and join it
 
 

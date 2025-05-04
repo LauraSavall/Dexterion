@@ -70,7 +70,7 @@ void mainLoop(bool state, MemoryManagement::moduleData client) {
 	if (miscConf.bombTimer) bomb::timer(C_C4);
 
 	// Bunny Hop
-	if (miscConf.bhopEnabled) misc::bunnyHop(localPlayer);
+	if (miscConf.bhopEnabled) misc::bunnyHop(client.base, localPlayer);
 
 	    if (localPlayer.getPlayerPawn() != 0) { // Only draw if local player is valid
         float currentSpeed = misc::g_currentSpeed2D.load(); // Read the shared speed

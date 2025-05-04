@@ -1,6 +1,7 @@
 #include "config.hpp"
 
-inline nlohmann::json aimConfig::to_json() {
+inline nlohmann::json aimConfig::to_json()
+{
 	nlohmann::json json;
 	json["rcs"] = rcs;
 	json["fov"] = fov;
@@ -29,8 +30,10 @@ inline nlohmann::json aimConfig::to_json() {
 	return json;
 }
 
-inline bool aimConfig::from_json(nlohmann::json json) {
-	try {
+inline bool aimConfig::from_json(nlohmann::json json)
+{
+	try
+	{
 		rcs = json["rcs"];
 		fov = json["fov"];
 		bone = json["bone"];
@@ -56,14 +59,16 @@ inline bool aimConfig::from_json(nlohmann::json json) {
 		isHotTrigger = json["isHotTrigger"];
 		hotSelectTrigger = json["hotSelectTrigger"];
 	}
-	catch (nlohmann::json::type_error& ignored) {
-		//Logger::warn("[Config.cpp] aimConfig section has missing properties, using defaults for missing options.");
+	catch (nlohmann::json::type_error &ignored)
+	{
+		// Logger::warn("[Config.cpp] aimConfig section has missing properties, using defaults for missing options.");
 	}
 
 	return true;
 }
 
-inline nlohmann::json espConfig::to_json() {
+inline nlohmann::json espConfig::to_json()
+{
 	nlohmann::json json;
 	json["head"] = head;
 	json["joint"] = joint;
@@ -102,8 +107,10 @@ inline nlohmann::json espConfig::to_json() {
 	return json;
 }
 
-inline bool espConfig::from_json(nlohmann::json json) {
-	try {
+inline bool espConfig::from_json(nlohmann::json json)
+{
+	try
+	{
 		head = json["head"];
 		joint = json["joint"];
 		state = json["state"];
@@ -171,15 +178,16 @@ inline bool espConfig::from_json(nlohmann::json json) {
 		c4ColorsGradient[2] = json["c4ColorsGradient"][2];
 		c4ColorsGradient[3] = json["c4ColorsGradient"][3];
 	}
-	catch (nlohmann::json::type_error& ignored) {
+	catch (nlohmann::json::type_error &ignored)
+	{
 		std::cout << "[Config.cpp] espConfig section has missing properties, using defaults for missing options." << std::endl;
 	}
 
 	return true;
 }
 
-
-inline nlohmann::json miscConfig::to_json() {
+inline nlohmann::json miscConfig::to_json()
+{
 	nlohmann::json json;
 	json["itemESP"] = itemESP;
 	json["bombTimer"] = bombTimer;
@@ -187,8 +195,8 @@ inline nlohmann::json miscConfig::to_json() {
 	json["damageList"] = damageList;
 	json["bhopEnabled"] = bhopEnabled;
 	json["bhopJumpVelocityThreshold"] = bhopJumpVelocityThreshold; // Added serialization
-	json["bhopSleep"] = bhopSleep; // Added serialization
-	json["bhopSleepForZero"] = bhopSleepForZero; // Added serialization
+	json["bhopSleep"] = bhopSleep;								   // Added serialization
+	json["bhopSleepForZero"] = bhopSleepForZero;				   // Added serialization
 
 	json["deathmatchMode"] = deathmatchMode;
 	json["consoleVisible"] = consoleVisible;
@@ -199,10 +207,12 @@ inline nlohmann::json miscConfig::to_json() {
 	return json;
 }
 
-inline bool miscConfig::from_json(nlohmann::json json) {
-	try {
+inline bool miscConfig::from_json(nlohmann::json json)
+{
+	try
+	{
 		itemESP = json["itemESP"];
-		spectator = json["spectator"]; 
+		spectator = json["spectator"];
 		consoleVisible = json["consoleVisible"];
 		obsBypass = json["obsBypass"];
 		deathmatchMode = json["deathmatchMode"];
@@ -213,44 +223,59 @@ inline bool miscConfig::from_json(nlohmann::json json) {
 		bombTimerColours[0] = json["bombTimerColours"][0];
 		bombTimerColours[1] = json["bombTimerColours"][1];
 		bombTimerColours[2] = json["bombTimerColours"][2];
-		damageList = json["damageList"]; 
+		damageList = json["damageList"];
 		damageListColours[0] = json["damageListColours"][0];
 		damageListColours[1] = json["damageListColours"][1];
 		damageListColours[2] = json["damageListColours"][2];
-		
+
 		// Try to load bhopEnabled, but don't fail if it doesn't exist in older configs
-		if (json.contains("bhopEnabled")) {
+		if (json.contains("bhopEnabled"))
+		{
 			bhopEnabled = json["bhopEnabled"];
 		}
-		if (json.contains("bhopJumpVelocityThreshold")) { // Added deserialization
+		if (json.contains("bhopJumpVelocityThreshold"))
+		{ // Added deserialization
 			bhopJumpVelocityThreshold = json["bhopJumpVelocityThreshold"];
-		} else {
+		}
+		else
+		{
 			bhopJumpVelocityThreshold = -290.0f; // Default value if not found
 		}
-				if (json.contains("bhopSleep")) { // Added deserialization
+		if (json.contains("bhopSleep"))
+		{ // Added deserialization
 			bhopSleep = json["bhopSleep"];
-		} else {
+		}
+		else
+		{
 			bhopSleep = 15625; // Default value if not found
 		}
-				if (json.contains("bhopSleepForZero")) { // Added deserialization
+		if (json.contains("bhopSleepForZero"))
+		{ // Added deserialization
 			bhopSleepForZero = json["bhopSleepForZero"];
-		} else {
+		}
+		else
+		{
 			bhopSleepForZero = 15625; // Default value if not found
 		}
-						if (json.contains("trigg")) { // Added deserialization
+		if (json.contains("trigg"))
+		{ // Added deserialization
 			trigg = json["trigg"];
-		} else {
+		}
+		else
+		{
 			trigg = 3; // Default value if not found
 		}
 	}
-	catch (nlohmann::json::type_error& ignored) {
-		//Logger::warn("[Config.cpp] miscConfig section has missing properties, using defaults for missing options.");
+	catch (nlohmann::json::type_error &ignored)
+	{
+		// Logger::warn("[Config.cpp] miscConfig section has missing properties, using defaults for missing options.");
 	}
 
 	return true;
 }
 
-nlohmann::json config::to_json() {
+nlohmann::json config::to_json()
+{
 	nlohmann::json json;
 	json["espConf"] = espConf.to_json();
 	json["aimConf"] = aimConf.to_json();
@@ -258,11 +283,14 @@ nlohmann::json config::to_json() {
 	return json;
 }
 
-void config::load(int index) {
-	if (index < 0 || index >= CONFIG_NAMES.size() || index >= MAX_CONFIGS) return;
+void config::load(int index)
+{
+	if (index < 0 || index >= CONFIG_NAMES.size() || index >= MAX_CONFIGS)
+		return;
 
-	try {
-		//info(L"[Config.cpp] Loading config: " + CONFIG_NAMES[index], true);
+	try
+	{
+		// info(L"[Config.cpp] Loading config: " + CONFIG_NAMES[index], true);
 		configFiles[index] = json::readFromJsonFile(utils::getConfigPath(), CONFIG_NAMES[index]);
 		aimConf.from_json(configFiles[index]["aimConf"]);
 		espConf.from_json(configFiles[index]["espConf"]);
@@ -271,30 +299,33 @@ void config::load(int index) {
 		ShowWindow(GetConsoleWindow(), miscConf.consoleVisible ? SW_RESTORE : SW_HIDE);
 		SetWindowDisplayAffinity(GetForegroundWindow(), miscConf.obsBypass ? WDA_EXCLUDEFROMCAPTURE : WDA_NONE);
 	}
-	catch (const nlohmann::json::type_error& e) {
+	catch (const nlohmann::json::type_error &e)
+	{
 		std::ostringstream str;
 
 		str << "[Config.cpp] Error: " << e.what();
 
-		//Logger::error(str.str(), true);
-		//Logger::warn("[Config.cpp] Configuration section has missing properties, using defaults for missing options.", true);
+		// Logger::error(str.str(), true);
+		// Logger::warn("[Config.cpp] Configuration section has missing properties, using defaults for missing options.", true);
 	}
 }
 
-
-void config::save(int index) {
-	if (index < 0 || index >= CONFIG_NAMES.size() || index >= MAX_CONFIGS) return;
+void config::save(int index)
+{
+	if (index < 0 || index >= CONFIG_NAMES.size() || index >= MAX_CONFIGS)
+		return;
 
 	std::wstring filePath = utils::getConfigPath() + L"\\" + CONFIG_NAMES[index];
-	//std::wcout << filePath << " Current index: " << index << std::endl; // debug
+	// std::wcout << filePath << " Current index: " << index << std::endl; // debug
 	std::ofstream outfile(filePath, std::ios_base::out);
 	outfile << config::to_json();
 	outfile.close();
 }
 
-void config::refresh() {
+void config::refresh()
+{
 
-	//Logger::info("[Config.cpp] Refreshing configs!");
+	// Logger::info("[Config.cpp] Refreshing configs!");
 
 	CONFIG_NAMES.clear();
 	configFiles->clear();
@@ -302,22 +333,23 @@ void config::refresh() {
 
 	if (!std::filesystem::exists(utils::getDexterionPath()))
 		std::filesystem::create_directory(utils::getDexterionPath());
-	
+
 	if (std::filesystem::exists(utils::getConfigPath()) && std::filesystem::is_directory(utils::getConfigPath()))
 	{
-		for (auto const& entry : std::filesystem::recursive_directory_iterator(utils::getConfigPath()))
+		for (auto const &entry : std::filesystem::recursive_directory_iterator(utils::getConfigPath()))
 		{
-			if (std::filesystem::is_regular_file(entry) && entry.path().extension() == ".json" && 0 != json::readFromJsonFile(utils::getConfigPath(), entry.path().filename().wstring())) 
+			if (std::filesystem::is_regular_file(entry) && entry.path().extension() == ".json" && 0 != json::readFromJsonFile(utils::getConfigPath(), entry.path().filename().wstring()))
 				CONFIG_NAMES.push_back(entry.path().filename().wstring());
 		}
 	}
 	else
 		std::filesystem::create_directory(utils::getConfigPath());
 
-	//success("[Config.cpp] Config files refreshed succesfully!");
+	// success("[Config.cpp] Config files refreshed succesfully!");
 }
 
-void config::create(std::wstring name) {
+void config::create(std::wstring name)
+{
 	std::wstring filePath = utils::getConfigPath() + L"\\" + name;
 	std::ofstream outfile(filePath);
 	outfile.close();
@@ -325,8 +357,10 @@ void config::create(std::wstring name) {
 	CONFIG_NAMES.push_back(name);
 }
 
-bool config::exists(int index) {
-	if (index < 0 || index >= CONFIG_NAMES.size() || index >= MAX_CONFIGS) return false;
+bool config::exists(int index)
+{
+	if (index < 0 || index >= CONFIG_NAMES.size() || index >= MAX_CONFIGS)
+		return false;
 
 	std::wstring filePath = utils::getConfigPath() + L"\\" + CONFIG_NAMES[index];
 	return std::ifstream(filePath).good();
