@@ -24,6 +24,7 @@ bool clientDLL::load() {
 	CSkeletonInstance_ = clientDLLOffsets["CSkeletonInstance"]["fields"];
 	CGameSceneNode_ = clientDLLOffsets["CGameSceneNode"]["fields"];
 	EntitySpottedState_t_ = clientDLLOffsets["EntitySpottedState_t"]["fields"];
+	CCSPlayer_BulletServices_ = clientDLLOffsets["CCSPlayer_BulletServices"]["fields"];
 	C_CSGameRules_ = clientDLLOffsets["C_CSGameRules"]["fields"];
 	CCSWeaponBaseVData_ = clientDLLOffsets["CCSWeaponBaseVData"]["fields"];
 	CCSPlayerBase_CameraServices_ = clientDLLOffsets["CCSPlayerBase_CameraServices"]["fields"];
@@ -236,6 +237,11 @@ uintptr_t C_CSPlayerPawn::getPawnTeam() {
 int C_CSPlayerPawn::getEntitySpotted() {
 	spotted = MemMan.ReadMem<DWORD_PTR>(playerPawn + clientDLL::C_CSPlayerPawn_["m_entitySpottedState"] + clientDLL::EntitySpottedState_t_["m_bSpottedByMask"]);
 	return spotted;
+}
+
+int32_t C_CSPlayerPawn::getBulletService() {
+	bulletService = MemMan.ReadMem<DWORD_PTR>(playerPawn + clientDLL::C_CSPlayerPawn_["m_pBulletServices"] + clientDLL::CCSPlayer_BulletServices_["m_totalHitsOnServer"]);
+	return bulletService;
 }
 
 int C_CSPlayerPawn::getOwner() {

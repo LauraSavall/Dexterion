@@ -37,6 +37,7 @@ namespace clientDLL {
 	nlohmann::json CSkeletonInstance_;
 	nlohmann::json CGameSceneNode_;
 	nlohmann::json EntitySpottedState_t_;
+	nlohmann::json CCSPlayer_BulletServices_;
 	nlohmann::json C_CSGameRules_;
 	nlohmann::json CCSWeaponBaseVData_;
 	nlohmann::json CCSPlayerBase_CameraServices_;
@@ -157,7 +158,10 @@ public:
 	int spotted;
 	int getEntitySpotted();
 
-	int owner;
+	int32_t bulletService;
+	int32_t getBulletService();
+
+    int owner;
 	int getOwner();
 
 	// CGameSceneNode

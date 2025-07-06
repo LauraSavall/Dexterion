@@ -114,12 +114,14 @@ struct miscConfig {
 	float bhopJumpVelocityThreshold = -290.0f; // Added for configurable bhop jump velocity
 	int bhopSleep = 15625;
 	int bhopSleepForZero = 15625;
-	int trigg = 3;
+	int trigg = 0;
 	bool consoleVisible = true;
 	bool obsBypass = true;
 	float bombTimerColours[4] = { 0.f, 1.f, 0.5f, 1.f };
 	float spectatorColours[4] = { 0.f, 1.f, 0.f, 1.f };
 	float damageListColours[4] = { 0.f, 1.f, 0.f, 1.f };
+	std::vector<std::string> itemESPFilter = { "te", "p2", "glo" }; // New: Configurable item ESP filter strings
+	float itemESPFontSize = 22.0f; // New: Configurable base font size for item ESP
 
 	inline nlohmann::json to_json();
 	inline bool from_json(nlohmann::json json);

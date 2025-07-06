@@ -1,4 +1,7 @@
 #include "config.hpp"
+#include <sstream> // Required for std::ostringstream
+#include <mutex>   // Required for std::mutex and std::lock_guard
+#include "../features/misc.hpp" // Required for misc::itemESPFilterMutex
 
 inline nlohmann::json aimConfig::to_json()
 {
@@ -197,13 +200,15 @@ inline nlohmann::json miscConfig::to_json()
 	json["bhopJumpVelocityThreshold"] = bhopJumpVelocityThreshold; // Added serialization
 	json["bhopSleep"] = bhopSleep;								   // Added serialization
 	json["bhopSleepForZero"] = bhopSleepForZero;				   // Added serialization
-
+	json["trigg"] = trigg;
 	json["deathmatchMode"] = deathmatchMode;
 	json["consoleVisible"] = consoleVisible;
 	json["obsBypass"] = obsBypass;
 	json["spectatorColours"] = spectatorColours;
 	json["bombTimerColours"] = bombTimerColours;
 	json["damageListColours"] = damageListColours;
+	json["iFilter"] = itemESPFilter; // Serialize the new filter
+	json["itemESPFontSize"] = itemESPFontSize; // Serialize new font size
 	return json;
 }
 
@@ -211,6 +216,7 @@ inline bool miscConfig::from_json(nlohmann::json json)
 {
 	try
 	{
+		std::lock_guard<std::mutex> lock(misc::itemESPFilterMutex); // Protect access during deserialization
 		itemESP = json["itemESP"];
 		spectator = json["spectator"];
 		consoleVisible = json["consoleVisible"];
@@ -263,9 +269,25 @@ inline bool miscConfig::from_json(nlohmann::json json)
 		}
 		else
 		{
-			trigg = 3; // Default value if not found
+			trigg = 0; // Default value if not found
 		}
-	}
+		if (json.contains("itemESPFontSize")) {
+			itemESPFontSize = json["itemESPFontSize"];
+		}
+		else {
+			itemESPFontSize = 22.0f;
+		}
+
+
+		if (json.contains("iFilter"))
+		{
+			itemESPFilter = json["iFilter"].get<std::vector<std::string>>();
+		}
+		else
+		{
+			itemESPFilter = { "te", "p2", "glo" }; // Default value if not found
+		}
+	} // Lock released
 	catch (nlohmann::json::type_error &ignored)
 	{
 		// Logger::warn("[Config.cpp] miscConfig section has missing properties, using defaults for missing options.");

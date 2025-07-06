@@ -143,6 +143,7 @@
     <ClInclude Include="features\esp.hpp" />
     <ClInclude Include="features\include.hpp" />
     <ClInclude Include="features\misc.hpp" />
+    <ClInclude Include="features\timeddraw.hpp" />
     <ClInclude Include="gui\menu.hpp" />
     <ClInclude Include="gui\overlay.hpp" />
     <ClInclude Include="imgui\imconfig.h" />
@@ -544,6 +545,7 @@
     <ClCompile Include="features\entry.cpp" />
     <ClCompile Include="features\esp.cpp" />
     <ClCompile Include="features\misc.cpp" />
+    <ClCompile Include="features\timeddraw.cpp" />
     <ClCompile Include="gui\menu.cpp" />
     <ClCompile Include="gui\overlay.cpp" />
     <ClCompile Include="imgui\imgui.cpp" />

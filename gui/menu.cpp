@@ -4,6 +4,7 @@
 #include "../util/config.hpp"
 #include "../util/DiscordVerify.hpp"
 #include "../util/utilFunctions.hpp"
+#include "../features/misc.hpp" // Required for misc::itemESPFilterMutex
 
 void imGuiMenu::setStyle() {
 		// Dexterion GUI style from ImThemes
@@ -402,6 +403,36 @@ void imGuiMenu::miscRender() {
 		ImGui::Dummy(ImVec2(0.0f, textSeparatorSpace));
 		ImGui::Checkbox("Dropped Item ESP", &miscConf.itemESP);
 		ImGui::Dummy(ImVec2(0.0f, textSeparatorSpace));
+		if (miscConf.itemESP) {
+			ImGui::PushFont(imGuiMenu::subTitleText);
+			ImGui::Text("filter (one per line)");
+			ImGui::PopFont();
+			ImGui::Dummy(ImVec2(0.0f, textSeparatorSpace));
+			ImGui::BeginChild("##iFilter", ImVec2(0, 100), true, ImGuiWindowFlags_HorizontalScrollbar); // Reduced height
+			{
+				std::lock_guard<std::mutex> lock(misc::itemESPFilterMutex); // Protect access
+				for (int i = 0; i < miscConf.itemESPFilter.size(); ++i) {
+					char buffer[256];
+					strcpy_s(buffer, sizeof(buffer), miscConf.itemESPFilter[i].c_str());
+					ImGui::PushID(i);
+					ImGui::InputText("##filter", buffer, sizeof(buffer));
+					miscConf.itemESPFilter[i] = buffer;
+					ImGui::SameLine();
+					if (ImGui::Button("-")) {
+						miscConf.itemESPFilter.erase(miscConf.itemESPFilter.begin() + i);
+						i--; // Adjust index after removal
+					}
+					ImGui::PopID();
+				}
+				if (ImGui::Button("Add New Filter")) {
+					miscConf.itemESPFilter.push_back("");
+				}
+			} // Lock released
+			ImGui::EndChild();
+			ImGui::Dummy(ImVec2(0.0f, textSeparatorSpace));
+			ImGui::SliderFloat("Font Size", &miscConf.itemESPFontSize, 8.0f, 24.0f, "%.1f"); // New: Font size slider
+			ImGui::Dummy(ImVec2(0.0f, textSeparatorSpace));
+		}
 		ImGui::Checkbox("Spectator List", &miscConf.spectator);
 		ImGui::Dummy(ImVec2(0.0f, textSeparatorSpace));
 		ImGui::Checkbox("Bomb Timer", &miscConf.bombTimer);
