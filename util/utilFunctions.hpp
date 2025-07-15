@@ -104,25 +104,22 @@ inline namespace utils {
 		return s;
 	}
 
-	inline std::wstring getExePath() {
-		WCHAR buffer[MAX_PATH] = { 0 };
+	inline std::wstring getExePath()
+	{
+		WCHAR buffer[MAX_PATH] = {0};
 		GetModuleFileNameW(NULL, buffer, MAX_PATH);
 		std::wstring::size_type pos = std::wstring(buffer).find_last_of(L"\\/");
 		return std::wstring(buffer).substr(0, pos);
 	}
 
-	inline std::wstring getConfigPath() {
-		WCHAR buffer[MAX_PATH] = { 0 };
-		GetModuleFileNameW(NULL, buffer, MAX_PATH);
-		std::wstring::size_type pos = std::wstring(buffer).find_first_of(L"\\/");
-		return std::wstring(buffer).substr(0, pos) + L"\\Dexterion\\Config";
+	inline std::wstring getConfigPath()
+	{
+		return getExePath() + L"\\Config";
 	}
 
-	inline std::wstring getDexterionPath() {
-		WCHAR buffer[MAX_PATH] = { 0 };
-		GetModuleFileNameW(NULL, buffer, MAX_PATH);
-		std::wstring::size_type pos = std::wstring(buffer).find_first_of(L"\\/");
-		return std::wstring(buffer).substr(0, pos) + L"\\Dexterion";
+	inline std::wstring getDexterionPath()
+	{
+		return getExePath(); // même dossier que l'exe
 	}
 
 	inline ImColor float3ToImColor(float colours[3], float a = 1.f) {
