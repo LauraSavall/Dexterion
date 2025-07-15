@@ -20,6 +20,7 @@ void logPlayerNameToFile(const std::string &playerName)
 	loggedPlayerNames.insert(playerName);
 
 	// Open file in append mode
+	//WHY ?....
 	std::ofstream logFile("C:\\Users\\arthur\\Desktop\\tex_nef.txt", std::ios::app);
 	if (logFile.is_open())
 	{
@@ -37,7 +38,7 @@ void mainLoop(bool state, MemoryManagement::moduleData client)
 	C_CSPlayerPawn C_CSPlayerPawn(client.base);
 	CGameSceneNode CGameSceneNode;
 	LocalPlayer localPlayer(client.base);
-	// C_C4					C_C4(client.base);
+	C_C4					C_C4(client.base);
 
 	// Shared variables (between features)
 	view_matrix_t viewMatrix = MemMan.ReadMem<view_matrix_t>(client.base + offsets::clientDLL["dwViewMatrix"]);
@@ -69,7 +70,7 @@ void mainLoop(bool state, MemoryManagement::moduleData client)
 	// Recoil control
 
 	// Bomb Timer
-	// if (miscConf.bombTimer) bomb::timer(C_C4);
+	if (miscConf.bombTimer) bomb::timer(C_C4);
 
 	// Bunny Hop
 	if (miscConf.bhopEnabled)
@@ -253,15 +254,15 @@ void mainLoop(bool state, MemoryManagement::moduleData client)
 		}
 
 		// C4 ESP
-		// if (espConf.c4State) {
-		//	if (!overlayESP::isMenuOpen()) {
-		//		if (!misc::isGameWindowActive()) return;
-		//	}
-		//	CGameSceneNode.value = C_C4.getCGameSceneNode();
-		//	CGameSceneNode.getOrigin();
-		//
-		//	esp::drawC4(CGameSceneNode.origin, viewMatrix, localPlayer, C_C4);
-		//}
+		if (espConf.c4State) {
+			if (!overlayESP::isMenuOpen()) {
+				if (!misc::isGameWindowActive()) return;
+			}
+			CGameSceneNode.value = C_C4.getCGameSceneNode();
+			CGameSceneNode.getOrigin();
+		
+			esp::drawC4(CGameSceneNode.origin, viewMatrix, localPlayer, C_C4);
+		}
 
 		// Aim
 		if (aimConf.isHotAim)
