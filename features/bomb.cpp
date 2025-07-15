@@ -40,7 +40,14 @@ void bomb::timer(C_C4 C_C4) {
 		};
 
 		oss.precision(4);
-		oss << "Bomb on " << sites[C_C4.getPlantedSite()] << ": " << std::fixed << remaining << " s";
+		if (defusing)
+		{
+			oss << "Defusing on " << sites[C_C4.getPlantedSite()] << ": " << std::fixed << remaining << " s";
+		}
+		else
+		{
+			oss << "Bomb on " << sites[C_C4.getPlantedSite()] << ": " << std::fixed << remaining << " s";
+		}
 
 		std::string Text = std::move(oss).str().c_str();
 
